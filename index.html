@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Membrane Transport Lab</title>
+<style>
+/* ===================== 12. RESPONSIVE LAYOUT & STYLE ===================== */
+:root{--bg:#bfe0fb;--bd:#26384d;--navy:#14315a;--teal:#1fa39a;--yellow:#f6d32d;--orange:#f28c28;--green:#43a047;--blue:#3fa9f5}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:#10243d;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;
+  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+#app{display:grid;height:100vh;height:100dvh;padding:8px;gap:8px;
+  grid-template-columns:240px minmax(0,1fr) 224px;grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:"head head head" "left center right" "mon mon mon"}
+.panel{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:8px;overflow:auto;min-height:0}
+header#head{grid-area:head;display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:4px 10px;min-height:46px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;flex:1;color:var(--navy);min-width:160px}
+.btn{min-height:40px;min-width:40px;border:1.5px solid var(--bd);border-radius:10px;background:linear-gradient(#fff,#d6e6f6);
+  font:600 14px/1.1 inherit;font-family:inherit;color:#10243d;padding:0 11px;cursor:pointer;touch-action:manipulation}
+.btn:active{transform:translateY(1px);background:#c4daf0}
+.btn.on{background:linear-gradient(#fff3b0,#ffd84d)}
+.btn.sm{padding:0;min-width:40px;font-size:20px}
+.btn.big{min-width:52px;min-height:52px;border-radius:26px;font-size:22px;background:linear-gradient(#7fc4ff,#2f8fe8);color:#fff;border-color:#14315a}
+.btn:disabled{opacity:.4}
+.seg{display:inline-flex}.seg .btn{border-radius:0;margin-left:-1.5px}.seg .btn:first-child{border-radius:10px 0 0 10px;margin-left:0}.seg .btn:last-child{border-radius:0 10px 10px 0}
+#left{grid-area:left}#center{grid-area:center;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
+#right{grid-area:right;display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0}
+#monitor{grid-area:mon;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:6px 8px}
+#monitor>h2{grid-column:1/-1;margin:0;font-size:13px;color:var(--navy);display:flex;justify-content:space-between}
+.grp{margin:2px 0 10px}
+.grp h3{margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#1b4a7a;border-bottom:1.5px solid #cfe0f1;padding-bottom:3px}
+.panel>h2{margin:0 0 6px;font-size:14px;color:var(--navy)}
+.row{display:grid;grid-template-columns:64px 1fr;gap:0 10px;align-items:center;margin:10px 0}
+.row .ic{grid-row:1/3;display:flex;align-items:center;justify-content:center}
+.row .ic svg{width:60px;height:60px;display:block}
+.row .nm{font-size:16px;font-weight:800;line-height:1.1;align-self:end;color:#10243d}
+.row .ctl{grid-column:2;display:flex;align-items:center;gap:4px}
+.grp.ecf{background:#e3f1fd;border:1.5px solid #8fc1ee;border-radius:10px;padding:6px 8px}.grp.cyto{background:#fff2de;border:1.5px solid #e4b777;border-radius:10px;padding:6px 8px}
+.ctl input[type=range]{flex:1;width:100%;height:32px;margin:0;touch-action:pan-y;accent-color:#1b6fb5}
+.grp.cyto .ctl input[type=range]{accent-color:#c77a14}
+.grp{margin:2px 0 12px}
+.val{flex:1;text-align:center;font-weight:700;font-size:15px;min-width:60px}
+.val small{display:block;font-weight:500;font-size:10.5px;color:#4b6178}
+.note{font-size:11px;color:#4b6178;margin:4px 0}
+#caption{min-height:34px;background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:5px 10px;font-size:14px;font-weight:600;color:var(--navy);display:flex;align-items:center}
+#simwrap{flex:1;min-height:0;border:2px solid var(--bd);border-radius:10px;overflow:hidden;background:#d5ebfc;position:relative}
+#sim{width:100%;height:100%;display:block;touch-action:none}
+#status{display:flex;flex-wrap:wrap;gap:4px;min-height:0}
+.chip{background:#fff;border:1.5px solid var(--bd);border-radius:14px;padding:2px 9px;font-size:12px;font-weight:600}
+.chip.pump{border-color:#7b4fb0}.chip.chan{border-color:#d9930b}
+#controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+#controls .lab{font-size:12px;font-weight:600;color:#33506f}
+.tool{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;border:2px dashed #6f9cc8;border-radius:14px;padding:14px 8px 12px;margin-bottom:8px;background:linear-gradient(#f9fcff,#e6f1fc);box-shadow:0 3px 0 #c2d6ea;touch-action:none;cursor:grab}
+.tool small{font-size:14px;font-weight:700;color:#4b6178;margin-top:-6px}
+#qEn,#qVi,#bSet,.seg[aria-label=Language]{display:none!important}
+.tool.static b{font-size:20px}
+.tool.static svg{width:100%!important;height:auto!important}
+.tool.static{cursor:default;border-style:solid;border-color:#c8d8e8;box-shadow:none;touch-action:auto}
+.tool svg{width:100px;height:124px;flex:none;display:block}
+.tool b{font-size:22px;font-weight:800;color:var(--navy);text-align:center;line-height:1.15}
+.tool .grip{position:absolute;top:9px;right:10px;width:14px;height:21px;opacity:.55;background:radial-gradient(circle,#4b6178 1.7px,transparent 2.2px) 0 0/7px 7px}
+.tool:not(.static) svg{animation:nudge 2.4s ease-in-out 1.2s 2}
+@keyframes nudge{0%,100%{transform:translateX(0)}30%{transform:translateX(-7px)}60%{transform:translateX(5px)}}
+.tool.static .lg{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600;color:#33506f;align-self:stretch}
+.tool.static .lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.modes .btn.on{background:linear-gradient(#ffe98a,#ffc928)}
+.proc{display:flex;align-items:center;gap:10px;width:100%;border:2px solid var(--bd);border-radius:14px;padding:8px 10px;margin:8px 0;background:linear-gradient(#fff,#e3eefa);cursor:pointer;font:800 17px/1.15 inherit;font-family:inherit;color:#10243d;text-align:left;min-height:84px;touch-action:manipulation}
+.proc svg{width:64px;height:64px;flex:none}
+.proc.on{background:linear-gradient(#fff3b0,#ffd84d);box-shadow:0 0 0 3px #f2a900 inset}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;grid-column:1/-1}
+.stp{display:flex;align-items:center;gap:8px;border:2px solid #c8d8e8;border-radius:12px;padding:6px 8px;font-size:14px;font-weight:700;color:#4b6178;background:#f6faff}
+.stp b{flex:none;width:26px;height:26px;border-radius:50%;background:#c8d8e8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.stp em{font-style:normal;color:#6a2fb0;border-bottom:3px solid #b79ae6}
+.stp.on{border-color:#f2a900;background:#fff3c4;color:#10243d}.stp.on b{background:#f2a900}
+.stp.done b{background:#43a047}.stp.done{color:#10243d}
+#home{position:fixed;inset:0;z-index:40;background:linear-gradient(#cfe8fc,#eaf5ff);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:18px;overflow:auto}
+#home.open{display:flex}
+#home h2{margin:0;font-size:30px;color:var(--navy);text-align:center}
+#home .hcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:100%;max-width:1120px}
+.hcard{display:flex;flex-direction:column;gap:10px;text-align:left;border:3px solid var(--bd);border-radius:20px;background:#fff;padding:14px 16px 18px;cursor:pointer;font-family:inherit;color:#10243d;box-shadow:0 5px 0 #9fbbd6;touch-action:manipulation}
+.hcard:hover{transform:translateY(-2px)}.hcard:active{transform:translateY(2px);box-shadow:0 2px 0 #9fbbd6}
+.hcard svg{width:100%;height:auto;border-radius:12px;border:1.5px solid #c8d8e8;display:block}
+.hcard h3{margin:0;font-size:25px;color:var(--navy)}
+.hcard ul{margin:0;padding-left:20px;font-size:16px;line-height:1.5;font-weight:600}
+#homeBack{position:absolute;top:12px;right:14px}
+
+.ghost{position:fixed;z-index:60;pointer-events:none;width:70px;height:86px;transform:translate(-50%,-50%);opacity:.92;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+.card{border:1.5px solid #c8d8e8;border-radius:10px;padding:6px 8px;background:#fbfdff;min-width:0}
+.card h4{margin:0 0 4px;font-size:13px;display:flex;align-items:center;gap:6px}
+.bar{display:grid;grid-template-columns:62px 1fr;gap:6px;align-items:center;margin:3px 0;font-size:11.5px}
+.trk{height:13px;border:1px solid #8ea4bb;border-radius:7px;background:#edf3f9;overflow:hidden}
+.trk i{display:block;height:100%;width:0;transition:width .15s}
+.fo{background:#4aa8e8}.fi{background:#f2a33a}.fa{background:#43a047}
+.bar b{text-align:right;font-variant-numeric:tabular-nums}
+.sum{font-size:11.5px;color:#2a4260;line-height:1.35;margin-top:3px}
+.modal{position:fixed;inset:0;background:rgba(10,30,60,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:10px}
+.modal.open{display:flex}
+.dlg{background:#fff;border-radius:14px;max-width:780px;width:100%;max-height:92vh;overflow:auto;padding:14px 16px;border:2px solid var(--bd);-webkit-user-select:text;user-select:text}
+.dlg h2{margin:0 0 8px;color:var(--navy);font-size:19px;display:flex;justify-content:space-between;align-items:center}
+.dlg input[type=text],.dlg textarea{font:16px system-ui,"Noto Sans",Arial,sans-serif;width:100%;border:1.5px solid #8ea4bb;border-radius:8px;padding:7px;min-height:40px}
+.dlg textarea{min-height:110px;font:12px ui-monospace,Menlo,Consolas,monospace}
+.terms{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.terms label{font-size:12px;font-weight:600;color:#33506f;display:block}
+.radios{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+details{margin:8px 0}summary{cursor:pointer;font-weight:700;min-height:32px;padding:4px 0}
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.dlg ul{margin:6px 0 6px 18px;padding:0;line-height:1.5;font-size:15px}
+.obj{background:#eef7ff;border-radius:10px;padding:6px 10px;margin:8px 0}
+.ch{border:1.5px solid #c8d8e8;border-radius:10px;margin-bottom:6px;background:#fbfdff}
+.ch summary{padding:5px 8px;font-size:13px}
+.ch .in{padding:0 8px 8px;font-size:12.5px;line-height:1.4}
+.ch .opt{display:block;width:100%;text-align:left;margin:3px 0;min-height:36px;font-size:12.5px}
+.ch .opt.sel{background:#ffe27a}
+.ch .ok{color:#1b7a2f;font-weight:700}.ch .fb{background:#eaf7ec;border-radius:8px;padding:4px 6px;margin-top:4px}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#14315a;color:#fff;padding:8px 14px;border-radius:18px;font-size:14px;z-index:70;display:none;max-width:90vw;text-align:center}
+svg .halo{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+svg .chg{display:none}
+.atp-bound{filter:drop-shadow(0 0 4px #ffd54f)}
+@media (max-width:900px),(orientation:portrait){
+  html,body{height:auto;overflow:auto}
+  #app{display:flex;flex-direction:column;height:auto;min-height:100vh}
+  header#head{order:1}#center{order:2}#right{order:3;flex-direction:column;overflow:visible}#left{order:4;overflow:visible}#monitor{order:5;grid-template-columns:1fr}
+  #simwrap{flex:none;aspect-ratio:840/600;width:100%}
+  #left .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .toolrow{display:flex;gap:8px;justify-content:center}.toolrow .tool{flex:0 1 260px;margin-bottom:0}
+  #home .hcards{grid-template-columns:1fr}
+  .terms{grid-template-columns:1fr}
+}
+#caption,#status,#home,#chalPanel{display:none!important}
+.steps{grid-template-columns:repeat(3,1fr)!important}
+.dirs{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font-size:13px;color:#33506f}.dirs .dp{color:#0b6b64}.dirs .dx{background:#ffe27a;color:#6b3f00;font-weight:800;border-radius:8px;padding:0 8px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="head">
+    <h1 data-i18n="title">Membrane Transport Lab</h1>
+    <div class="seg modes" role="group" aria-label="Mode">
+      <button class="btn" data-m="passive" type="button" data-i18n="mPassiveS">Passive</button><button class="btn" data-m="active" type="button" data-i18n="mActiveS">Active</button><button class="btn" data-m="ves" type="button" data-i18n="mVesS">Vesicular</button>
+    </div>
+    <div class="seg" role="group" aria-label="Language">
+      <button class="btn" id="qEn" type="button">EN</button><button class="btn" id="qVi" type="button">VI</button>
+    </div>
+    <button class="btn" id="bSet" type="button" data-i18n="btnSettings">Settings</button>
+  </header>
+
+  <aside id="left" class="panel">
+    <h2 data-i18n="solutes">Solutes</h2>
+    <div class="cols" id="leftCols"></div>
+  </aside>
+
+  <main id="center">
+    <div id="caption"></div>
+    <div id="simwrap">
+      <svg id="sim" viewBox="0 0 840 600" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Plasma membrane simulation">
+        <defs>
+          <pattern id="lipOut" width="14" height="34" patternUnits="userSpaceOnUse" x="0" y="266">
+            <line x1="4.5" y1="12" x2="4.5" y2="34" stroke="#e0508a" stroke-width="1.8"/>
+            <line x1="9.5" y1="12" x2="9.5" y2="34" stroke="#e0508a" stroke-width="1.8"/>
+            <circle cx="7" cy="7" r="6.4" fill="#f5a623" stroke="#b36b00" stroke-width="1"/>
+          </pattern>
+          <pattern id="lipIn" width="14" height="34" patternUnits="userSpaceOnUse" x="0" y="300">
+            <line x1="4.5" y1="0" x2="4.5" y2="22" stroke="#e0508a" stroke-width="1.8"/>
+            <line x1="9.5" y1="0" x2="9.5" y2="22" stroke="#e0508a" stroke-width="1.8"/>
+            <circle cx="7" cy="27" r="6.4" fill="#f5a623" stroke="#b36b00" stroke-width="1"/>
+          </pattern>
+        </defs>
+<g id="bgPA">
+        <rect x="0" y="0" width="840" height="266" fill="#d5ebfc"/>
+        <rect x="0" y="334" width="840" height="266" fill="#fff1dc"/>
+        <rect x="0" y="266" width="840" height="68" fill="#fff0f5"/>
+        <rect x="0" y="266" width="840" height="34" fill="url(#lipOut)"/>
+        <rect x="0" y="300" width="840" height="34" fill="url(#lipIn)"/>
+        <rect id="dropGlow" x="0" y="236" width="840" height="128" fill="#ffd84d" opacity="0" rx="8"/>
+        <text class="lbl halo" x="14" y="32" font-size="24" font-weight="700" fill="#1b4a7a" data-i18n="ecf">Extracellular Fluid</text>
+        <text class="lbl halo" x="14" y="586" font-size="24" font-weight="700" fill="#8a5a10" data-i18n="cyto">Cytoplasm</text>
+        <text class="lbl halo" x="12" y="262" font-size="20" font-weight="700" fill="#7a2150" data-i18n="membrane">Plasma Membrane</text>
+        </g>
+        <g id="bgV" style="display:none">
+          <rect x="0" y="0" width="840" height="600" fill="#d5ebfc"/>
+          <g id="vSetA"><path class="poly" fill="#fff1dc"/><g class="rb"></g><g class="lip"><path class="tl" fill="none" stroke="#e0508a" stroke-width="1.8" stroke-linecap="round"/><path class="hd" fill="#f5a623" stroke="#b36b00" stroke-width="1"/></g></g>
+          <g id="vSetB"><path class="poly" fill="#fff1dc"/><g class="rb"></g><g class="lip"><path class="tl" fill="none" stroke="#e0508a" stroke-width="1.8" stroke-linecap="round"/><path class="hd" fill="#f5a623" stroke="#b36b00" stroke-width="1"/></g></g>
+          <text class="lbl halo" x="14" y="32" font-size="24" font-weight="700" fill="#1b4a7a" data-i18n="ecf">Extracellular Fluid</text>
+          <text class="lbl halo" x="14" y="586" font-size="24" font-weight="700" fill="#8a5a10" data-i18n="cyto">Cytoplasm</text>
+          <text class="lbl halo" x="826" y="280" text-anchor="end" font-size="20" font-weight="700" fill="#7a2150" data-i18n="bilayer">Phospholipid bilayer</text>
+          <g id="vAtp" opacity="0.25" transform="translate(0 480)"><rect x="716" y="30" width="108" height="40" rx="20" fill="#fff" stroke="#16622a" stroke-width="2"/><circle cx="738" cy="50" r="9" fill="#2e9b4a" stroke="#16622a" stroke-width="1.5"/><circle cx="754" cy="50" r="5" fill="#a8e6b0" stroke="#16622a"/><text x="796" y="56" text-anchor="middle" font-size="17" font-weight="800" fill="#14532d">ATP</text></g>
+        </g>
+        <g id="protLayer"></g>
+        <g id="partLayer"></g>
+        <g id="vCargo"></g>
+      </svg>
+    </div>
+    <div id="status"></div>
+    <div id="controls">
+      <div class="seg">
+        
+        <button class="btn big" id="bPlay" type="button" aria-label="Play / Pause">⏸</button>
+        
+      </div>
+      <button class="btn" id="bRestart" type="button">↻ <span data-i18n="restart">Restart</span></button>
+      <button class="btn" id="bRemoveAll" type="button" data-i18n="removeAll">Remove all proteins</button>
+      <button class="btn" id="bReset" type="button" data-i18n="resetSim">Reset simulation</button>
+    </div>
+  </main>
+
+  <aside id="right">
+    <div class="panel" id="toolPanel" style="overflow:visible">
+      <h2 data-i18n="toolbox">Membrane proteins</h2>
+      <div class="toolrow" id="toolRow"></div>
+    </div>
+    <div class="panel" id="chalPanel" style="display:none;overflow:visible"></div>
+  </aside>
+
+  <section id="monitor" aria-live="polite"></section>
+</div>
+
+<!-- Settings dialog -->
+<div class="modal" id="mSet" role="dialog" aria-modal="true">
+  <div class="dlg">
+    <h2><span data-i18n="setTitle">Settings</span><button class="btn" id="setClose" type="button" data-i18n="close">Close</button></h2>
+    <b data-i18n="setLang">Language</b>
+    <div class="radios" id="langRadios">
+      <button class="btn" data-l="en" type="button" data-i18n="langEn">English</button>
+      <button class="btn" data-l="vi" type="button" data-i18n="langVi">Tiếng Việt</button>
+      <button class="btn" data-l="custom" type="button" data-i18n="langCustom">Custom terminology</button>
+    </div>
+    <b data-i18n="setTerms">Terminology editor</b>
+    <div class="note" data-i18n="setTermsHint"></div>
+    <div class="terms" id="termsCore"></div>
+    <details><summary data-i18n="setAdv">All other texts</summary><div class="terms" id="termsAdv"></div></details>
+    <div class="radios">
+      <button class="btn" id="setRestore" type="button" data-i18n="setRestore">Restore default terms</button>
+      <button class="btn" id="setExport" type="button" data-i18n="setExport">Export settings (JSON)</button>
+      <button class="btn" id="setImport" type="button" data-i18n="setImport">Import settings (JSON)</button>
+      <label class="btn" style="display:inline-flex;align-items:center"><span data-i18n="setImportFile">Import from file</span><input type="file" id="setFile" accept=".json,application/json" style="display:none"></label>
+    </div>
+    <textarea id="setJson" spellcheck="false" aria-label="Settings JSON"></textarea>
+    <div class="note" id="setMsg"></div>
+  </div>
+</div>
+
+<!-- Learn dialog -->
+<div class="modal" id="mInfo" role="dialog" aria-modal="true">
+  <div class="dlg">
+    <h2><span data-i18n="infoTitle">Learn</span><button class="btn" id="infoClose" type="button" data-i18n="close">Close</button></h2>
+    <div class="tabs"><button class="btn on" id="tabFD" type="button" data-i18n="fd">Facilitated Diffusion</button><button class="btn" id="tabAT" type="button" data-i18n="at">Active Transport</button><button class="btn" id="tabVT" type="button" data-i18n="vt">Vesicular Transport</button></div>
+    <ul id="infoList"></ul>
+    <button class="btn" id="objBtn" type="button" data-i18n="showObj">Show Learning Objectives</button>
+    <div class="obj" id="objBox" style="display:none"></div>
+  </div>
+</div>
+<div id="home" role="dialog" aria-modal="true"><button class="btn" id="homeBack" type="button" data-i18n="close" style="display:none">Close</button><h2 id="homeTitle"></h2><div class="hcards" id="homeCards"></div></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ======================================================================
+   10. TERMINOLOGY MANAGEMENT  (one central dictionary – never hard-code text elsewhere)
+   ====================================================================== */
+const CORE=['membrane','ecf','cyto','na','k','atp','channel','pump','fd','at','grad','conf','high','low','pumpInactive','pumpActive','atpBind','waitAtp','energy','dir','eq'];
+const I18N={
+en:{
+ membrane:'Plasma Membrane',ecf:'Extracellular Fluid',cyto:'Cytoplasm',na:'Sodium Ion',k:'Potassium Ion',atp:'ATP',
+ channel:'Na⁺ Channel',pump:'Na⁺/K⁺ Pump',fd:'Facilitated Diffusion',at:'Active Transport',grad:'Concentration Gradient',
+ conf:'Conformational Change',high:'High Concentration',low:'Low Concentration',pumpInactive:'Pump inactive',pumpActive:'Pump active',
+ atpBind:'ATP Binding',waitAtp:'Waiting for ATP',energy:'Energy Required',dir:'Transport Direction',eq:'Dynamic Equilibrium',
+ title:'Membrane Transport Lab',btnSettings:'Settings',btnInfo:'Learn',btnChallenge:'Challenges',solutes:'Solutes',
+ scaleNote:'Scale: 1 particle = {s} mM (shown beside each value).',particles:'particles',
+ toolbox:'Membrane components in transport',chanType:'(transport protein)',pumpType:'(pump protein)',chanDesc:'{fd} · no ATP',pumpDesc:'{at} · {energy}',
+ dragHint:'Drag a protein onto the membrane. Tap an installed protein to select it; drag it away from the membrane to remove it.',
+ installed:'Installed proteins: {n}/{m}',removeAll:'Remove all proteins',
+ play:'Play',pause:'Pause',stepBack:'Step back',stepFwd:'Step forward',restart:'Restart',speed:'Speed',labels:'Labels',arrows:'Arrows',
+ resetSim:'Reset simulation',resetOne:'Reset this value',decrease:'Decrease',increase:'Increase',delProt:'Remove protein',
+ outside:'Outside',inside:'Inside',concMonitor:'Concentration monitor',
+ netMove:'Net movement (last 20 s)',netNone:'none',netIn:'into the cell (+{n})',netOut:'out of the cell (+{n})',
+ consumed:'ATP consumed',atpBoundN:'ATP bound to pumps',
+ gradOutIn:'{grad}: {high} outside → {low} inside',gradInOut:'{grad}: {high} inside → {low} outside',gradEq:'{eq}: equal on both sides',
+ capIdle:'Drag a protein onto the membrane to start.',capRun:'Watch the particles move. You can change concentrations at any time.',capPaused:'Paused – you can still change concentrations and install proteins.',
+ msgInstalled:'Pump installed – {waitAtp}.',msgChanInstalled:'{channel} installed – Na⁺ can diffuse through it (no ATP needed).',
+ msgNoAtp:'Insufficient ATP – {pumpInactive}.',msgWaitBind:'Waiting for ATP binding...',
+ msgAtpBound:'{atpBind}: ATP attached – {pumpActive}.',
+ msgNaBind:'3 Na⁺ bind to the pump.',msgToE2:'{conf}: E1 → E2 – now open to the extracellular fluid.',msgNaOut:'3 Na⁺ transported OUTSIDE.',
+ msgKBind:'2 K⁺ bind to the pump.',msgToE1:'{conf}: E2 → E1 – now open to the cytoplasm.',msgKIn:'2 K⁺ transported INSIDE.',
+ msgCycle:'3 Na⁺ OUT · 2 K⁺ IN · 1 ATP CONSUMED',
+ stNaBind:'E1 · binding Na⁺ ({n}/3)',stToE2:'E1 → E2 · {conf}',stNaRel:'E2 · releasing Na⁺ outside',stKBind:'E2 · binding K⁺ ({n}/2)',
+ stToE1:'E2 → E1 · {conf}',stKRel:'E1 · releasing K⁺ inside',stAtpBind:'{atpBind}…',
+ msgNeedNa:'Not enough Na⁺ inside the cell (need 3).',msgNeedK:'Not enough K⁺ outside the cell (need 2).',
+ msgNoRoom:'No room there – try another spot on the membrane.',msgMaxProt:'Only 1 transport protein can be placed. Remove it to place another.',msgDropHere:'Drop the protein onto the membrane.',
+ msgMaxConc:'Maximum reached.',msgMinConc:'No free particles left to remove.',
+ setTitle:'Settings',setLang:'Language',langEn:'English',langVi:'Tiếng Việt',langCustom:'Custom terminology',setTerms:'Terminology editor',
+ setTermsHint:'Edit any term – it changes everywhere immediately and is saved in this browser.',setAdv:'All other texts',
+ setRestore:'Restore default terms',setExport:'Export settings (JSON)',setImport:'Import settings (JSON)',setImportFile:'Import from file',
+ setImportOk:'Settings imported.',setImportErr:'Invalid settings JSON.',setExported:'Settings exported (JSON below).',setRestored:'Default terms restored.',close:'Close',
+ infoTitle:'Learn',showObj:'Show Learning Objectives',hideObj:'Hide Learning Objectives',objTitle:'Learning objectives',
+ obj1:'Describe facilitated diffusion through a channel protein.',obj2:'Explain how the concentration gradient sets the direction of net movement.',
+ obj3:'Explain that active transport needs a pump protein and ATP.',obj4:'Describe the pump cycle E1 → E2 → E1: 3 Na⁺ out, 2 K⁺ in.',
+ fd1:'Passive transport: no energy (ATP) is needed.',fd2:'Needs a channel protein – here the {channel}, which lets only Na⁺ through.',
+ fd3:'Na⁺ moves down its {grad}: from {high} to {low}.',fd4:'If the gradient is reversed, the net movement reverses too.',
+ fd5:'At equal concentrations ions keep moving but there is no net movement ({eq}).',
+ at1:'Needs a transport protein: the {pump}.',at2:'Needs energy: {atpBind} supplies it for the transport cycle.',
+ at3:'The pump changes shape ({conf}): E1 (open to the cytoplasm) ⇄ E2 (open to the outside).',
+ at4:'Na⁺ is pumped out of the cell and K⁺ into the cell – both against their gradients.',at5:'One ATP powers one cycle: 3 Na⁺ out and 2 K⁺ in.',
+ chTitle:'Challenge mode',chIntro:'Predict first, then run the experiment.',chPredict:'Your prediction:',chPredSaved:'Prediction saved – now try it!',
+ chDone:'Completed',chTodo:'In progress',chRight:'Your prediction was correct.',chWrong:'Your prediction differed – compare it with what you saw.',chToast:'Challenge {n} completed!',
+ c1t:'Make Na⁺ higher on one side, install a {channel} and watch Na⁺ cross.',c1q:'Which way will most Na⁺ move through the channel?',c1a:'High → low concentration',c1b:'Low → high concentration',
+ c1e:'Through a channel Na⁺ moves down its gradient (high → low) without ATP.',
+ c2t:'Install a {pump} while there is no ATP and watch what happens.',c2q:'Will the pump move ions without ATP?',c2a:'Yes, it works by itself',c2b:'No, it stays inactive',
+ c2e:'A transport protein alone is not enough – the pump needs ATP.',
+ c3t:'Increase intracellular ATP and watch ATP molecules wander until one binds the pump.',c3q:'How does ATP reach the pump?',c3a:'You must drag it there',c3b:'It diffuses randomly and binds on collision',
+ c3e:'ATP moves randomly in the cytoplasm and binds when it meets the pump’s binding site.',
+ c4t:'Watch how ATP binding lets the pump change from E1 to E2.',c4q:'Which side is the pump open to first?',c4a:'Cytoplasm (E1)',c4b:'Extracellular fluid (E2)',
+ c4e:'The pump starts open to the cytoplasm (E1) and opens to the outside (E2) only after ATP and 3 Na⁺ have bound.',
+ c5t:'Complete one full pump cycle: 3 Na⁺ out and 2 K⁺ in.',c5q:'How many ions move per cycle?',c5a:'3 Na⁺ out, 2 K⁺ in',c5b:'2 Na⁺ out, 3 K⁺ in',
+ c5e:'Each cycle moves 3 Na⁺ out and 2 K⁺ in and uses 1 ATP.',
+ c6t:'After a cycle, reduce intracellular ATP to 0 and watch the pump.',c6q:'What happens when ATP runs out?',c6a:'The pump keeps working',c6b:'The pump stops (inactive)',
+ c6e:'Without ATP the pump cannot start a new cycle.'
+ ,dirGrad:'Gradient',dirPump:'Bơm',dirIn:'vào trong',dirOut:'ra ngoài',dirAgainst:'Ngược gradient',mPassiveS:'Vận chuyển thụ động',mActiveS:'Vận chuyển chủ động',mVesS:'Vận chuyển nhờ biến dạng màng',home:'Home',homeTitle:'Choose an experiment',
+ mPassive:'Vận chuyển thụ động',mActive:'Vận chuyển chủ động',mVes:'Vận chuyển nhờ biến dạng màng',
+ p1:'Simple diffusion and facilitated diffusion',p2:'Solutes: Na⁺, CO₂ and O₂',p3:'Available membrane protein: Na⁺ channel only',
+ a1:'Active transport using ATP',a2:'Solutes: Na⁺, K⁺ and ATP',a3:'Available membrane protein: Na⁺/K⁺ pump only',
+ v1:'Transport through membrane deformation',v2:'Processes: Endocytosis and Exocytosis',v3:'No channel or pump proteins',
+ co2:'Carbon Dioxide',o2:'Oxygen',process:'Process',pino:'Pinocytosis',phago:'Phagocytosis',tagPi:'Pinocytosis: takes in a fluid droplet with solutes',tagPh:'Phagocytosis: takes in a large molecule',tagEx:'Exocytosis: releases a large molecule outside',stPi1:'The membrane bends inward around a <em>fluid droplet with solutes</em> and forms a vesicle',stPi2:'The vesicle separates from the membrane',stPi3:'The vesicle with <em>fluid and solutes</em> moves into the cytoplasm',stPh1:'The membrane bends inward around a <em>large molecule</em> and forms a vesicle',stPh2:'The vesicle separates from the membrane',stPh3:'The vesicle with the <em>large molecule</em> moves into the cytoplasm',endo:'Endocytosis',exo:'Exocytosis',pl:'Phospholipid bilayer',head:'Hydrophilic head',tails:'Hydrophobic tails',bilayer:'Phospholipid bilayer',vt:'Vesicular Transport',
+ capIdleP:'Drag the Na⁺ channel onto the membrane. CO₂ and O₂ already cross the bilayer on their own.',capIdleA:'Drag the Na⁺/K⁺ pump onto the membrane to start.',
+ enApproach:'The large particle approaches the plasma membrane.',enInvag:'The membrane bends inward – both layers of the bilayer bend together around the particle.',
+ enPinch:'The neck narrows and the membrane pinches off.',enSink:'A closed vesicle with a complete bilayer moves into the cytoplasm.',
+ exTravel:'A vesicle filled with cargo moves toward the plasma membrane.',exDock:'The vesicle docks at the plasma membrane.',
+ exFuse:'The vesicle bilayer fuses with the plasma membrane.',exRelease:'The fusion pore opens and the cargo is released outside.',exDone:'The vesicle membrane has become part of the plasma membrane.',
+ stEn1:'Màng lõm vào bao lấy chất cần vận chuyển tạo túi vận chuyển',stEn2:'Túi vận chuyển tách khỏi màng',stEn3:'Túi vận chuyển đi vào tế bào chất',stEx1:'<em>Phân tử có kích thước lớn</em> được bọc trong túi vận chuyển',stEx2:'Túi liên kết với màng',stEx3:'<em>Phân tử lớn</em> được giải phóng ra ngoài tế bào',
+ sd1:'Simple diffusion: small non-polar molecules (O₂, CO₂) cross the lipid bilayer directly, down their gradient.',sd2:'Na⁺ cannot cross the bilayer alone – it needs the {channel}.',
+ vt1:'Vesicular transport moves large particles or many molecules inside membrane-bound vesicles.',vt2:'Endocytosis: the membrane bends inward around the particle and pinches off as a vesicle.',
+ vt3:'Exocytosis: a vesicle fuses with the plasma membrane and releases its cargo outside.',vt4:'Both layers of the phospholipid bilayer bend together; cargo never crosses the lipid layers directly.',
+ vt5:'These processes need energy (ATP) but no channel or pump proteins.'
+},
+vi:{
+ membrane:'Màng sinh chất',ecf:'Môi trường ngoài tế bào',cyto:'Tế bào chất',na:'Ion sodium',k:'Ion potassium',atp:'ATP',
+ channel:'Kênh Na⁺',pump:'Bơm Na⁺/K⁺',fd:'Khuếch tán được hỗ trợ',at:'Vận chuyển chủ động',grad:'Gradien nồng độ',
+ conf:'Sự thay đổi cấu hình',high:'Nồng độ cao',low:'Nồng độ thấp',pumpInactive:'Bơm chưa hoạt động',pumpActive:'Bơm đang hoạt động',
+ atpBind:'Sự gắn ATP',waitAtp:'Đang chờ ATP',energy:'Cần năng lượng',dir:'Chiều vận chuyển',eq:'Cân bằng động',
+ title:'Phòng thí nghiệm vận chuyển qua màng',btnSettings:'Cài đặt',btnInfo:'Kiến thức',btnChallenge:'Thử thách',solutes:'Chất tan',
+ scaleNote:'Tỉ lệ: 1 hạt = {s} mM (hiển thị cạnh mỗi giá trị).',particles:'hạt',
+ toolbox:'Thành phần màng tham gia vận chuyển',chanType:'(protein vận chuyển)',pumpType:'(protein bơm)',chanDesc:'{fd} · không cần ATP',pumpDesc:'{at} · {energy}',
+ dragHint:'Kéo protein thả vào màng. Chạm vào protein đã gắn để chọn; kéo ra xa màng để gỡ.',
+ installed:'Protein đã gắn: {n}/{m}',removeAll:'Gỡ tất cả protein',
+ play:'Chạy',pause:'Tạm dừng',stepBack:'Lùi một bước',stepFwd:'Tiến một bước',restart:'Chạy lại',speed:'Tốc độ',labels:'Nhãn',arrows:'Mũi tên',
+ resetSim:'Đặt lại mô phỏng',resetOne:'Đặt lại giá trị này',decrease:'Giảm',increase:'Tăng',delProt:'Gỡ protein',
+ outside:'Bên ngoài',inside:'Bên trong',concMonitor:'Theo dõi nồng độ',
+ netMove:'Di chuyển ròng (20 giây gần nhất)',netNone:'không có',netIn:'vào tế bào (+{n})',netOut:'ra khỏi tế bào (+{n})',
+ consumed:'ATP đã dùng',atpBoundN:'ATP đang gắn vào bơm',
+ gradOutIn:'{grad}: {high} ở ngoài → {low} ở trong',gradInOut:'{grad}: {high} ở trong → {low} ở ngoài',gradEq:'{eq}: hai bên bằng nhau',
+ capIdle:'Hãy kéo một protein thả vào màng để bắt đầu.',capRun:'Quan sát các hạt chuyển động. Bạn có thể đổi nồng độ bất cứ lúc nào.',capPaused:'Đang tạm dừng – vẫn có thể đổi nồng độ và gắn protein.',
+ msgInstalled:'Đã gắn bơm – {waitAtp}.',msgChanInstalled:'Đã gắn {channel} – Na⁺ có thể khuếch tán qua (không cần ATP).',
+ msgNoAtp:'Không đủ ATP – {pumpInactive}.',msgWaitBind:'Đang chờ ATP gắn vào bơm...',
+ msgAtpBound:'{atpBind}: ATP đã gắn – {pumpActive}.',
+ msgNaBind:'3 Na⁺ gắn vào bơm.',msgToE2:'{conf}: E1 → E2 – giờ mở ra phía môi trường ngoài tế bào.',msgNaOut:'3 Na⁺ được vận chuyển RA NGOÀI.',
+ msgKBind:'2 K⁺ gắn vào bơm.',msgToE1:'{conf}: E2 → E1 – giờ mở ra phía tế bào chất.',msgKIn:'2 K⁺ được vận chuyển VÀO TRONG.',
+ msgCycle:'3 Na⁺ RA · 2 K⁺ VÀO · 1 ATP ĐÃ DÙNG',
+ stNaBind:'E1 · đang gắn Na⁺ ({n}/3)',stToE2:'E1 → E2 · {conf}',stNaRel:'E2 · thả Na⁺ ra ngoài',stKBind:'E2 · đang gắn K⁺ ({n}/2)',
+ stToE1:'E2 → E1 · {conf}',stKRel:'E1 · thả K⁺ vào trong',stAtpBind:'{atpBind}…',
+ msgNeedNa:'Không đủ Na⁺ trong tế bào (cần 3).',msgNeedK:'Không đủ K⁺ ngoài tế bào (cần 2).',
+ msgNoRoom:'Không còn chỗ – hãy thử vị trí khác trên màng.',msgMaxProt:'Chỉ được đặt 1 protein vận chuyển. Gỡ protein cũ để đặt lại.',msgDropHere:'Hãy thả protein lên màng.',
+ msgMaxConc:'Đã đạt giá trị tối đa.',msgMinConc:'Không còn hạt tự do để giảm.',
+ setTitle:'Cài đặt',setLang:'Ngôn ngữ',langEn:'English',langVi:'Tiếng Việt',langCustom:'Thuật ngữ tùy chỉnh',setTerms:'Trình chỉnh sửa thuật ngữ',
+ setTermsHint:'Sửa bất kỳ thuật ngữ nào – giá trị thay đổi ngay ở mọi nơi và được lưu trong trình duyệt này.',setAdv:'Các văn bản khác',
+ setRestore:'Khôi phục thuật ngữ mặc định',setExport:'Xuất cài đặt (JSON)',setImport:'Nhập cài đặt (JSON)',setImportFile:'Nhập từ tệp',
+ setImportOk:'Đã nhập cài đặt.',setImportErr:'JSON cài đặt không hợp lệ.',setExported:'Đã xuất cài đặt (JSON bên dưới).',setRestored:'Đã khôi phục thuật ngữ mặc định.',close:'Đóng',
+ infoTitle:'Kiến thức',showObj:'Hiện mục tiêu học tập',hideObj:'Ẩn mục tiêu học tập',objTitle:'Mục tiêu học tập',
+ obj1:'Mô tả sự khuếch tán được hỗ trợ qua protein kênh.',obj2:'Giải thích gradien nồng độ quyết định chiều di chuyển ròng.',
+ obj3:'Giải thích vận chuyển chủ động cần protein bơm và ATP.',obj4:'Mô tả chu kỳ bơm E1 → E2 → E1: 3 Na⁺ ra, 2 K⁺ vào.',
+ fd1:'Là vận chuyển thụ động: không cần năng lượng (ATP).',fd2:'Cần protein kênh – ở đây là {channel}, chỉ cho Na⁺ đi qua.',
+ fd3:'Na⁺ đi theo {grad}: từ {high} đến {low}.',fd4:'Nếu đảo ngược gradien thì chiều di chuyển ròng cũng đảo ngược.',
+ fd5:'Khi nồng độ hai bên bằng nhau, các ion vẫn chuyển động nhưng không có di chuyển ròng ({eq}).',
+ at1:'Cần protein vận chuyển: {pump}.',at2:'Cần năng lượng: {atpBind} cung cấp năng lượng cho chu kỳ vận chuyển.',
+ at3:'Bơm đổi hình dạng ({conf}): E1 (mở ra tế bào chất) ⇄ E2 (mở ra môi trường ngoài).',
+ at4:'Na⁺ bị bơm ra khỏi tế bào, K⁺ được bơm vào tế bào – cả hai đều ngược chiều gradien.',at5:'Một ATP cung cấp cho một chu kỳ: 3 Na⁺ ra và 2 K⁺ vào.',
+ chTitle:'Chế độ thử thách',chIntro:'Hãy dự đoán trước, rồi chạy thí nghiệm.',chPredict:'Dự đoán của bạn:',chPredSaved:'Đã lưu dự đoán – hãy thử ngay!',
+ chDone:'Hoàn thành',chTodo:'Đang làm',chRight:'Dự đoán của bạn đúng.',chWrong:'Dự đoán của bạn khác kết quả – hãy so sánh với điều bạn quan sát.',chToast:'Hoàn thành thử thách {n}!',
+ c1t:'Làm Na⁺ nhiều hơn ở một phía, gắn {channel} và quan sát Na⁺ đi qua.',c1q:'Phần lớn Na⁺ sẽ đi qua kênh theo chiều nào?',c1a:'Từ nồng độ cao → thấp',c1b:'Từ nồng độ thấp → cao',
+ c1e:'Qua kênh, Na⁺ đi theo gradien (cao → thấp) mà không cần ATP.',
+ c2t:'Gắn {pump} khi chưa có ATP và quan sát điều gì xảy ra.',c2q:'Bơm có vận chuyển ion khi không có ATP không?',c2a:'Có, tự hoạt động',c2b:'Không, bơm không hoạt động',
+ c2e:'Chỉ có protein vận chuyển là chưa đủ – bơm cần ATP.',
+ c3t:'Tăng ATP trong tế bào chất và xem ATP chuyển động ngẫu nhiên cho đến khi một ATP gắn vào bơm.',c3q:'ATP đến bơm bằng cách nào?',c3a:'Phải kéo ATP đến bơm',c3b:'Khuếch tán ngẫu nhiên và gắn khi va chạm',
+ c3e:'ATP chuyển động ngẫu nhiên trong tế bào chất và gắn vào khi gặp vị trí gắn của bơm.',
+ c4t:'Quan sát sự gắn ATP giúp bơm chuyển từ E1 sang E2 như thế nào.',c4q:'Ban đầu bơm mở ra phía nào?',c4a:'Tế bào chất (E1)',c4b:'Môi trường ngoài tế bào (E2)',
+ c4e:'Bơm ban đầu mở ra tế bào chất (E1) và chỉ mở ra bên ngoài (E2) sau khi ATP và 3 Na⁺ đã gắn vào.',
+ c5t:'Hoàn thành một chu kỳ bơm đầy đủ: 3 Na⁺ ra và 2 K⁺ vào.',c5q:'Mỗi chu kỳ chuyển bao nhiêu ion?',c5a:'3 Na⁺ ra, 2 K⁺ vào',c5b:'2 Na⁺ ra, 3 K⁺ vào',
+ c5e:'Mỗi chu kỳ chuyển 3 Na⁺ ra, 2 K⁺ vào và dùng 1 ATP.',
+ c6t:'Sau một chu kỳ, giảm ATP trong tế bào chất về 0 và quan sát bơm.',c6q:'Điều gì xảy ra khi hết ATP?',c6a:'Bơm vẫn hoạt động',c6b:'Bơm dừng lại (chưa hoạt động)',
+ c6e:'Không có ATP thì bơm không thể bắt đầu chu kỳ mới.'
+ ,dirGrad:'Gradient',dirPump:'Bơm',dirIn:'vào trong',dirOut:'ra ngoài',dirAgainst:'Ngược gradient',mPassiveS:'Vận chuyển thụ động',mActiveS:'Vận chuyển chủ động',mVesS:'Vận chuyển nhờ biến dạng màng',home:'Trang chủ',homeTitle:'Chọn thí nghiệm',
+ mPassive:'Vận chuyển thụ động',mActive:'Vận chuyển chủ động',mVes:'Vận chuyển nhờ biến dạng màng',
+ p1:'Khuếch tán đơn giản và khuếch tán được hỗ trợ',p2:'Chất tan: Na⁺, CO₂ và O₂',p3:'Protein màng: chỉ có kênh Na⁺',
+ a1:'Vận chuyển chủ động dùng ATP',a2:'Chất tan: Na⁺, K⁺ và ATP',a3:'Protein màng: chỉ có bơm Na⁺/K⁺',
+ v1:'Vận chuyển nhờ biến dạng màng',v2:'Quá trình: nhập bào và xuất bào',v3:'Không có protein kênh hay protein bơm',
+ co2:'Carbon dioxide',o2:'Oxygen',process:'Quá trình',pino:'Ẩm bào',phago:'Thực bào',tagPi:'Đặc điểm chất được vận chuyển: giọt dịch chứa chất tan',tagPh:'Đặc điểm chất được vận chuyển: phân tử có kích thước lớn',tagEx:'Đặc điểm chất được vận chuyển: phân tử có kích thước lớn',stPi1:'Màng lõm vào bao lấy <em>giọt dịch chứa chất tan</em> tạo túi vận chuyển',stPi2:'Túi vận chuyển tách khỏi màng',stPi3:'Túi vận chuyển chứa <em>dịch và chất tan</em> đi vào tế bào chất',stPh1:'Màng lõm vào bao lấy <em>phân tử có kích thước lớn</em> tạo túi vận chuyển',stPh2:'Túi vận chuyển tách khỏi màng',stPh3:'Túi vận chuyển chứa <em>phân tử lớn</em> đi vào tế bào chất',endo:'Nhập bào',exo:'Xuất bào',pl:'Lớp màng phospholipid',head:'Đầu ưa nước',tails:'Đuôi kị nước',bilayer:'Lớp kép phospholipid',vt:'Vận chuyển bằng túi',
+ capIdleP:'Kéo kênh Na⁺ thả vào màng. CO₂ và O₂ tự đi qua lớp kép phospholipid.',capIdleA:'Kéo bơm Na⁺/K⁺ thả vào màng để bắt đầu.',
+ enApproach:'Hạt lớn tiến đến màng sinh chất.',enInvag:'Màng lõm vào – cả hai lớp phospholipid cùng uốn quanh hạt.',
+ enPinch:'Cổ túi thắt lại và màng tách ra.',enSink:'Túi kín có đủ lớp kép phospholipid di chuyển vào tế bào chất.',
+ exTravel:'Túi chứa chất cần tiết di chuyển đến màng sinh chất.',exDock:'Túi tiếp xúc với màng sinh chất.',
+ exFuse:'Lớp kép của túi hòa nhập với màng sinh chất.',exRelease:'Lỗ hòa nhập mở ra, chất trong túi được giải phóng ra ngoài.',exDone:'Màng túi đã trở thành một phần của màng sinh chất.',
+ stEn1:'Màng lõm vào bao lấy chất cần vận chuyển tạo túi vận chuyển',stEn2:'Túi vận chuyển tách khỏi màng',stEn3:'Túi vận chuyển đi vào tế bào chất',stEx1:'<em>Phân tử có kích thước lớn</em> được bọc trong túi vận chuyển',stEx2:'Túi liên kết với màng',stEx3:'<em>Phân tử lớn</em> được giải phóng ra ngoài tế bào',
+ sd1:'Khuếch tán đơn giản: phân tử nhỏ, không phân cực (O₂, CO₂) đi thẳng qua lớp kép phospholipid, theo gradien nồng độ.',sd2:'Na⁺ không tự đi qua lớp kép – cần {channel}.',
+ vt1:'Vận chuyển bằng túi đưa hạt lớn hoặc nhiều phân tử trong các túi có màng bao bọc.',vt2:'Nhập bào: màng lõm vào bao lấy hạt rồi tách ra thành túi.',
+ vt3:'Xuất bào: túi hòa nhập với màng sinh chất và giải phóng chất chứa bên trong ra ngoài.',vt4:'Cả hai lớp phospholipid cùng uốn cong; chất vận chuyển không bao giờ đi xuyên trực tiếp qua lớp lipid.',
+ vt5:'Các quá trình này cần năng lượng (ATP) nhưng không cần protein kênh hay bơm.'
+}};
+const STORE_KEY='membraneLab.settings.v2';
+let lang='vi';
+let custom=null;           // full custom dictionary or null
+let langStamp=1;
+function raw(key){
+  const d=lang==='custom'?custom:I18N[lang];
+  if(d&&typeof d[key]==='string'&&d[key]!=='')return d[key];
+  return I18N.en[key]!==undefined?I18N.en[key]:key;
+}
+function t(key,vars,depth){
+  depth=depth||0;const s=raw(key);if(depth>4)return s;
+  return s.replace(/\{(\w+)\}/g,function(m,k){
+    if(vars&&Object.prototype.hasOwnProperty.call(vars,k))return vars[k];
+    if(I18N.en[k]!==undefined)return t(k,vars,depth+1);
+    return m;
+  });
+}
+/* ---- 11. SETTINGS PERSISTENCE ---- */
+function saveSettings(){try{localStorage.setItem(STORE_KEY,JSON.stringify({lang:lang,custom:custom}));}catch(e){}}
+function sanitizeCustom(obj){
+  const o={};if(!obj||typeof obj!=='object')return null;
+  Object.keys(I18N.en).forEach(function(k){if(typeof obj[k]==='string'&&obj[k].length<=400)o[k]=obj[k];});
+  return Object.keys(o).length?o:null;
+}
+function loadSettings(){
+  return;
+  try{const s=JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+    if(s){custom=sanitizeCustom(s.custom);
+      if(s.lang==='en'||s.lang==='vi')lang=s.lang;else if(s.lang==='custom'&&custom)lang='custom';}
+  }catch(e){}
+}
+
+/* ======================================================================
+   1. SIMULATION STATE  (single source of truth: particles + proteins)
+   ====================================================================== */
+const W=840,H=600,MY=300,HEAD_OUT=266,HEAD_IN=334,R=9,RA=11;
+const SCALE=5;
+const MAXP={na:40,k:40,atp:30,co2:40,o2:40};
+const MODECFG={
+ passive:{rows:[{g:'ecf',kind:'na',comp:'out'},{g:'ecf',kind:'co2',comp:'out'},{g:'ecf',kind:'o2',comp:'out'},{g:'cyto',kind:'na',comp:'in'},{g:'cyto',kind:'co2',comp:'in'},{g:'cyto',kind:'o2',comp:'in'}],
+   defaults:{naOut:0,naIn:0,co2Out:0,co2In:0,o2Out:0,o2In:0},prot:'chan'},
+ active:{rows:[{g:'ecf',kind:'na',comp:'out'},{g:'ecf',kind:'k',comp:'out'},{g:'cyto',kind:'na',comp:'in'},{g:'cyto',kind:'k',comp:'in'},{g:'cyto',kind:'atp',comp:'in'}],
+   defaults:{naOut:30,naIn:8,kOut:8,kIn:30,atpIn:0},prot:'pump'},
+ ves:{rows:[],defaults:{},prot:null}
+};
+let mode='passive';
+const MODES={};
+const PUMP_HALF=50,PUMP_W=36,CH_HALF=46,CH_W=30,PORE=14;
+const MAX_PROT=1,MIN_GAP=110,X_MIN=120,X_MAX=780;
+const NA_IN=[[-12,38],[0,24],[12,38]],NA_OUT=[[-12,-38],[0,-24],[12,-38]],K_OUT=[[-8,-34],[8,-34]],K_IN=[[-8,34],[8,34]],ATP_SITE=[46,54];
+const ATTR=170;
+let S=freshState();
+let setp=Object.assign({},MODECFG.passive.defaults);   // student-chosen concentration set-points (used by Restart)
+let running=true,speed=1;
+let history=[],snapAcc=0;
+let cap=null;
+function freshState(name){const o={time:0,nextId:1,particles:[],proteins:[],ev:[],
+  c:{naChanIn:0,naChanOut:0,naPumpOut:0,kPumpIn:0,atpConsumed:0,atpBind:0,e1e2:0,cycles:0,c1:0,noAtpT:0,noAtpT2:0}};if(name==='ves')o.v=vFresh();return o;}
+const clamp=function(v,a,b){return v<a?a:v>b?b:v;};
+const lerp=function(a,b,u){return a+(b-a)*u;};
+const ease=function(u){u=clamp(u,0,1);return u*u*(3-2*u);};
+const rnd=function(a,b){return a+Math.random()*(b-a);};
+
+/* ======================================================================
+   2. PARTICLE SYSTEM
+   ====================================================================== */
+function spawn(kind,comp){
+  const r=kind==='atp'?RA:R;
+  const lo=comp==='out'?r+4:HEAD_IN+r+6,hi=comp==='out'?HEAD_OUT-r-6:H-r-4;
+  const a=Math.random()*6.283,sp=rnd(60,100);
+  const p={id:S.nextId++,kind:kind,comp:comp,x:rnd(r+6,W-r-6),y:rnd(lo,hi),vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,st:'free',owner:null,slot:0,t:0,fx:0,fy:0,cool:0};
+  S.particles.push(p);return p;
+}
+function counts(){
+  const c={naOut:0,naIn:0,kOut:0,kIn:0,atpIn:0,atpBound:0,co2Out:0,co2In:0,o2Out:0,o2In:0};
+  for(let i=0;i<S.particles.length;i++){const p=S.particles[i];
+    if(p.dead)continue;
+    if(p.kind==='atp'){if(p.st==='free')c.atpIn++;else c.atpBound++;}
+    else c[p.kind+(p.comp==='out'?'Out':'In')]++;
+  }
+  return c;
+}
+function keyOf(kind,comp){return kind==='atp'?'atpIn':kind+(comp==='out'?'Out':'In');}
+function adjustTo(kind,comp,target){
+  target=clamp(target,0,MAXP[kind]);
+  let c=counts(),key=keyOf(kind,comp),guard=200;
+  while(c[key]<target&&guard--){spawn(kind,comp);c=counts();}
+  while(c[key]>target&&guard--){
+    const free=S.particles.filter(function(p){return p.kind===kind&&p.comp===comp&&p.st==='free'&&!p.dead;});
+    if(!free.length)break;
+    const v=free[Math.floor(Math.random()*free.length)];S.particles.splice(S.particles.indexOf(v),1);c=counts();
+  }
+  return counts()[key];
+}
+function buildParticlesFromSetpoints(){
+  S.particles=[];
+  MODECFG[mode].rows.forEach(function(r){const n=setp[keyOf(r.kind,r.comp)]||0;for(let i=0;i<n;i++)spawn(r.kind,r.comp);});
+}
+function moveFree(p,dt){
+  const k=300*dt;p.vx+=(Math.random()-.5)*k;p.vy+=(Math.random()-.5)*k;
+  let sp=Math.hypot(p.vx,p.vy);const lo=55,hi=115;
+  if(sp>hi){p.vx*=hi/sp;p.vy*=hi/sp;}
+  else if(sp<lo){if(sp<1){const a=Math.random()*6.283;p.vx=Math.cos(a)*lo;p.vy=Math.sin(a)*lo;}else{p.vx*=lo/sp;p.vy*=lo/sp;}}
+  p.x+=p.vx*dt;p.y+=p.vy*dt;bounds(p);
+}
+function isGas(p){return p.kind==='co2'||p.kind==='o2';}
+function bounds(p){
+  const r=p.kind==='atp'?RA:R,minX=r+2,maxX=W-r-2;
+  if(p.x<minX){p.x=minX;p.vx=Math.abs(p.vx);}if(p.x>maxX){p.x=maxX;p.vx=-Math.abs(p.vx);}
+  if(isGas(p)){                       // small non-polar gases are free to cross the lipid bilayer
+    if(p.y<r+2){p.y=r+2;p.vy=Math.abs(p.vy);}if(p.y>H-r-2){p.y=H-r-2;p.vy=-Math.abs(p.vy);}
+    p.comp=p.y<MY?'out':'in';return;
+  }
+  const lo=p.comp==='out'?r+2:HEAD_IN+r+1,hi=p.comp==='out'?HEAD_OUT-r-1:H-r-2;
+  if(p.y<lo){p.y=lo;p.vy=Math.abs(p.vy);}if(p.y>hi){p.y=hi;p.vy=-Math.abs(p.vy);}
+}
+/* proteins are solid: nothing crosses the bilayer or a protein body without a mechanism */
+function collideProteins(p){
+  const r=p.kind==='atp'?RA:R;
+  for(let i=0;i<S.proteins.length;i++){
+    const pr=S.proteins[i],hw=pr.type==='pump'?PUMP_W:CH_W,hh=pr.type==='pump'?PUMP_HALF:CH_HALF;
+    const dx=p.x-pr.x;if(Math.abs(dx)>hw+r)continue;
+    const pen=p.comp==='out'?(p.y+r)-(MY-hh):(MY+hh)-(p.y-r);
+    if(pen<=0)continue;
+    const side=hw+r-Math.abs(dx);
+    if(pen<side){if(p.comp==='out'){p.y=MY-hh-r;p.vy=-Math.abs(p.vy);}else{p.y=MY+hh+r;p.vy=Math.abs(p.vy);}}
+    else{const s=dx>=0?1:-1;p.x=pr.x+s*(hw+r);p.vx=s*Math.abs(p.vx);}
+  }
+}
+function gasCollide(p){
+  for(let i=0;i<S.proteins.length;i++){const pr=S.proteins[i];
+    const dx=p.x-pr.x,dy=p.y-MY,ox=CH_W+R-Math.abs(dx),oy=CH_HALF+R-Math.abs(dy);
+    if(ox>0&&oy>0){
+      if(ox<oy){const sg=dx>=0?1:-1;p.x+=sg*ox;p.vx=sg*Math.abs(p.vx);}
+      else{const sg=dy>=0?1:-1;p.y+=sg*oy;p.vy=sg*Math.abs(p.vy);}
+    }
+  }
+}
+function freeStep(p,dt){
+  if(isGas(p)){moveFree(p,dt);gasCollide(p);return;}
+  // gentle affinity toward binding sites that are currently "wanting" a particle (diffusion-limited binding speed-up)
+  for(let i=0;i<S.proteins.length;i++){
+    const pu=S.proteins[i];if(pu.type!=='pump')continue;
+    let tx=null,ty=null;
+    if(p.kind==='atp'&&pu.st==='idle'){tx=pu.x+ATP_SITE[0];ty=MY+ATP_SITE[1];}
+    else if(p.kind==='na'&&p.comp==='in'&&pu.wantNa){tx=pu.x;ty=MY+58;}
+    else if(p.kind==='k'&&p.comp==='out'&&pu.wantK){tx=pu.x;ty=MY-58;}
+    if(tx===null)continue;
+    const dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy);
+    if(d<260&&d>1){p.vx+=dx/d*ATTR*dt;p.vy+=dy/d*ATTR*dt;}
+  }
+  if(p.kind==='na'&&p.cool<=0){            // weak funnel toward channel mouths (same on both sides, so the gradient still decides direction)
+    for(let i=0;i<S.proteins.length;i++){const ch=S.proteins[i];if(ch.type!=='chan'||ch.busy)continue;
+      const my=p.comp==='out'?MY-CH_HALF:MY+CH_HALF,dx=ch.x-p.x,dy=my-p.y,d=Math.hypot(dx,dy);
+      if(d<170&&d>1){p.vx+=dx/d*55*dt;p.vy+=dy/d*55*dt;}}
+  }
+  moveFree(p,dt);
+  if(p.cool>0)return;                       // freshly released particles pass through the open pore
+  if(p.kind==='na'){                        // channel entry: Na+ only (selective), one ion at a time
+    for(let i=0;i<S.proteins.length;i++){
+      const ch=S.proteins[i];if(ch.type!=='chan'||ch.busy)continue;
+      if(Math.abs(p.x-ch.x)<PORE){
+        const Cc=S._C||counts();if((p.comp==='out'?Cc.naOut-Cc.naIn:Cc.naIn-Cc.naOut)<2)continue;   // facilitated diffusion only runs from the high-concentration side to the low one
+        const reach=p.comp==='out'?(p.y+R>=MY-CH_HALF):(p.y-R<=MY+CH_HALF);
+        if(reach){enterChannel(p,ch);return;}
+      }
+    }
+  }
+  collideProteins(p);
+}
+
+/* ======================================================================
+   6. FACILITATED DIFFUSION MECHANICS
+   ====================================================================== */
+function enterChannel(p,ch){
+  const C=S._C||counts();
+  const cf=p.comp==='out'?C.naOut:C.naIn,ct=p.comp==='out'?C.naIn:C.naOut;
+  p.good=cf>ct;ch.busy=p.id;p.st='transit';p.owner=ch.id;p.t=0;p.fx=p.x;p.fy=p.y;p.vx=0;p.vy=0;
+}
+function transitStep(p,dt){
+  const ch=S.proteins.find(function(q){return q.id===p.owner;});
+  if(!ch){p.st='free';p.owner=null;p.cool=0.4;return;}
+  p.t+=dt/0.9;ch.glow=0.45;
+  const dirIn=p.comp==='out',topY=MY-CH_HALF+2,botY=MY+CH_HALF-2;
+  const aY=dirIn?topY:botY,bY=dirIn?botY:topY,exY=dirIn?MY+CH_HALF+R+4:MY-CH_HALF-R-4,u=p.t;
+  if(u<0.17){const v=u/0.17;p.x=lerp(p.fx,ch.x,v);p.y=lerp(p.fy,aY,v);}
+  else if(u<0.83){const v=(u-0.17)/0.66;p.x=ch.x;p.y=lerp(aY,bY,ease(v));}
+  else if(u<1){const v=(u-0.83)/0.17;p.x=ch.x;p.y=lerp(bY,exY,v);}
+  else{
+    p.comp=dirIn?'in':'out';p.st='free';p.owner=null;p.cool=0.5;p.x=ch.x+rnd(-4,4);p.y=exY;p.vx=rnd(-20,20);p.vy=dirIn?80:-80;ch.busy=null;
+    S.ev.push({t:S.time,k:'na',d:dirIn?1:-1,via:'chan'});
+    if(dirIn)S.c.naChanIn++;else S.c.naChanOut++;
+    if(p.good)S.c.c1++;
+  }
+}
+
+/* ======================================================================
+   7 & 8. ATP RANDOM MOVEMENT / BINDING  +  Na+/K+ PUMP MECHANICS
+   ====================================================================== */
+function ionPos(pu,q){
+  if(q.kind==='na'){const a=NA_IN[q.slot],b=NA_OUT[q.slot],u=ease(pu.conf);return[pu.x+lerp(a[0],b[0],u),MY+lerp(a[1],b[1],u)];}
+  const a=K_OUT[q.slot],b=K_IN[q.slot],u=ease(1-pu.conf);return[pu.x+lerp(a[0],b[0],u),MY+lerp(a[1],b[1],u)];
+}
+function releaseIon(pu,q){
+  q.owner=null;q.st='free';q.cool=0.6;q.vx=rnd(-25,25);
+  if(q.kind==='na'){q.comp='out';q.vy=-90;S.ev.push({t:S.time,k:'na',d:-1,via:'pump'});S.c.naPumpOut++;}
+  else{q.comp='in';q.vy=90;S.ev.push({t:S.time,k:'k',d:1,via:'pump'});S.c.kPumpIn++;}
+}
+function pumpStep(pu,dt){
+  const own=S.particles.filter(function(q){return q.owner===pu.id;});
+  const naL=own.filter(function(q){return q.kind==='na';}),kL=own.filter(function(q){return q.kind==='k';});
+  const atp=own.find(function(q){return q.kind==='atp';});
+  pu.wantNa=false;pu.wantK=false;if(pu.fx>0)pu.fx-=dt;
+  const x=pu.x;
+  switch(pu.st){
+  case 'idle':{                                   // E1, open to cytoplasm, waiting for ATP
+    pu.conf=0;pu.dir=0;
+    const sx=x+ATP_SITE[0],sy=MY+ATP_SITE[1];
+    for(let i=0;i<S.particles.length;i++){const q=S.particles[i];
+      if(q.kind!=='atp'||q.st!=='free'||q.cool>0||q.dead)continue;
+      if(Math.hypot(q.x-sx,q.y-sy)<36){            // collision with the cytoplasmic ATP-binding site
+        q.st='atpBinding';q.owner=pu.id;q.t=0;q.fx=q.x;q.fy=q.y;pu.st='atpBind';S.c.atpBind++;pu.fx=0.7;break;}
+    }
+    break;}
+  case 'atpBind':{
+    if(!atp){pu.st='idle';break;}
+    atp.t+=dt/0.5;const u=Math.min(atp.t,1);
+    atp.x=lerp(atp.fx,x+ATP_SITE[0],u);atp.y=lerp(atp.fy,MY+ATP_SITE[1],u);
+    if(atp.t>=1){atp.st='atpBound';pu.st='naBind';pu.tm=0;pu.sg=false;pu.fx=0.7;setCaption('msgAtpBound',null,3000);}
+    break;}
+  case 'naBind':{
+    pu.conf=0;pu.wantNa=naL.length<3;
+    if(naL.length<3){
+      for(let i=0;i<S.particles.length&&naL.length<3;i++){const q=S.particles[i];
+        if(q.kind!=='na'||q.comp!=='in'||q.st!=='free'||q.cool>0)continue;
+        if(Math.hypot(q.x-x,q.y-(MY+58))<40){q.st='bindNa';q.owner=pu.id;q.slot=naL.length;q.t=0;q.fx=q.x;q.fy=q.y;naL.push(q);}
+      }
+    }
+    let arrived=0;
+    naL.forEach(function(q){
+      if(q.st==='bindNa'){q.t+=dt/0.35;const u=Math.min(q.t,1),s=NA_IN[q.slot];q.x=lerp(q.fx,x+s[0],u);q.y=lerp(q.fy,MY+s[1],u);if(q.t>=1)q.st='boundNa';}
+      if(q.st==='boundNa')arrived++;
+    });
+    if(arrived>=3){
+      if(!pu.sg){pu.sg=true;setCaption('msgNaBind',null,2500);}
+      pu.tm+=dt;if(pu.tm>0.6){pu.st='toE2';pu.dir=1;pu.sg=false;}
+    }
+    break;}
+  case 'toE2':{                                   // first conformational change E1 -> E2
+    if(!pu.sg){pu.sg=true;setCaption('msgToE2',null,3000);}
+    pu.conf=Math.min(1,pu.conf+dt/1.4);
+    naL.forEach(function(q){if(q.st==='boundNa'){const p=ionPos(pu,q);q.x=p[0];q.y=p[1];}});
+    if(pu.conf>=1){pu.st='naRelease';pu.tm=0;pu.rel=0;pu.sg=false;S.c.e1e2++;}
+    break;}
+  case 'naRelease':{                              // E2: release 3 Na+ outside
+    pu.conf=1;pu.tm+=dt;
+    while(pu.rel<3&&pu.tm>=0.15+pu.rel*0.4){
+      const q=naL.find(function(z){return z.slot===pu.rel&&z.st==='boundNa';});
+      if(q)releaseIon(pu,q);
+      pu.rel++;
+    }
+    if(pu.rel>=3&&pu.tm>=1.5){setCaption('msgNaOut',null,2500);pu.st='kBind';pu.tm=0;pu.sg=false;}
+    break;}
+  case 'kBind':{                                  // E2: bind 2 K+ from the outside
+    pu.conf=1;pu.wantK=kL.length<2;
+    if(kL.length<2){
+      for(let i=0;i<S.particles.length&&kL.length<2;i++){const q=S.particles[i];
+        if(q.kind!=='k'||q.comp!=='out'||q.st!=='free'||q.cool>0)continue;
+        if(Math.hypot(q.x-x,q.y-(MY-58))<40){q.st='bindK';q.owner=pu.id;q.slot=kL.length;q.t=0;q.fx=q.x;q.fy=q.y;kL.push(q);}
+      }
+    }
+    let arrived=0;
+    kL.forEach(function(q){
+      if(q.st==='bindK'){q.t+=dt/0.35;const u=Math.min(q.t,1),s=K_OUT[q.slot];q.x=lerp(q.fx,x+s[0],u);q.y=lerp(q.fy,MY+s[1],u);if(q.t>=1)q.st='boundK';}
+      if(q.st==='boundK')arrived++;
+    });
+    if(arrived>=2){
+      if(!pu.sg){pu.sg=true;setCaption('msgKBind',null,2500);}
+      pu.tm+=dt;if(pu.tm>0.6){pu.st='toE1';pu.dir=-1;pu.sg=false;}
+    }
+    break;}
+  case 'toE1':{                                   // second conformational change E2 -> E1
+    if(!pu.sg){pu.sg=true;setCaption('msgToE1',null,3000);}
+    pu.conf=Math.max(0,pu.conf-dt/1.4);
+    kL.forEach(function(q){if(q.st==='boundK'){const p=ionPos(pu,q);q.x=p[0];q.y=p[1];}});
+    if(pu.conf<=0){pu.st='kRelease';pu.tm=0;pu.rel=0;pu.sg=false;}
+    break;}
+  case 'kRelease':{                               // E1: release 2 K+ into the cytoplasm
+    pu.conf=0;pu.tm+=dt;
+    while(pu.rel<2&&pu.tm>=0.15+pu.rel*0.4){
+      const q=kL.find(function(z){return z.slot===pu.rel&&z.st==='boundK';});
+      if(q){releaseIon(pu,q);if(pu.rel===0)setCaption('msgKIn',null,2500);}
+      pu.rel++;
+    }
+    if(pu.rel>=2&&pu.tm>=1.1){
+      if(atp){atp.dead=true;}                      // one ATP = one cycle; consumed, never reused
+      S.c.atpConsumed++;S.c.cycles++;pu.st='done';pu.tm=0;setCaption('msgCycle',null,4500);
+    }
+    break;}
+  case 'done':{pu.conf=0;pu.dir=0;pu.tm+=dt;if(pu.tm>2.5){pu.st='idle';}break;}
+  }
+}
+function detachProtein(pr){
+  S.particles.forEach(function(q){
+    if(q.owner!==pr.id)return;
+    q.owner=null;q.st='free';q.cool=0.5;q.vx=rnd(-30,30);q.vy=q.comp==='out'?-60:60;
+    if(q.kind==='atp')q.comp='in';
+    q.y=q.comp==='out'?HEAD_OUT-25:HEAD_IN+25;q.x=pr.x+rnd(-25,25);
+  });
+}
+
+/* ======================================================================
+   MAIN TICK
+   ====================================================================== */
+function tick(dt){
+  S.time+=dt;S._C=counts();
+  for(let i=0;i<S.particles.length;i++){const p=S.particles[i];
+    if(p.cool>0)p.cool-=dt;
+    if(p.st==='free')freeStep(p,dt);else if(p.st==='transit')transitStep(p,dt);
+  }
+  for(let i=0;i<S.proteins.length;i++){const pr=S.proteins[i];
+    if(pr.type==='pump')pumpStep(pr,dt);else if(pr.glow>0)pr.glow-=dt;
+  }
+  if(S.particles.some(function(p){return p.dead;}))S.particles=S.particles.filter(function(p){return !p.dead;});
+  if(S.ev.length&&S.time-S.ev[0].t>20)S.ev=S.ev.filter(function(e){return S.time-e.t<=20;});
+  const C=counts();
+  const idle=S.proteins.some(function(p){return p.type==='pump'&&p.st==='idle';});
+  if(idle&&C.atpIn===0){S.c.noAtpT+=dt;if(S.c.cycles>=1)S.c.noAtpT2+=dt;}
+}
+function stepSim(dt){
+  while(dt>1e-6){const h=Math.min(dt,1/30);
+    if(mode==='ves')vTick(h);else{tick(h);snapAcc+=h;if(snapAcc>=0.5){snapAcc=0;pushSnap();}}
+    dt-=h;}
+}
+function snapshot(){const o={time:S.time,nextId:S.nextId,particles:S.particles,proteins:S.proteins,ev:S.ev,c:S.c};return JSON.stringify(o);}
+function pushSnap(){history.push(snapshot());if(history.length>40)history.shift();}
+function restoreSnap(str){const o=JSON.parse(str);S=Object.assign(freshState(),o);}
+
+/* ======================================================================
+   5. DRAG-AND-DROP + protein management
+   ====================================================================== */
+const simSvg=document.getElementById('sim');
+function toSvg(cx,cy){const pt=simSvg.createSVGPoint();pt.x=cx;pt.y=cy;const m=simSvg.getScreenCTM();return m?pt.matrixTransform(m.inverse()):{x:0,y:0};}
+function freeX(x,ignoreId){
+  x=clamp(x,X_MIN,X_MAX);
+  const ok=function(v){return v>=X_MIN&&v<=X_MAX&&S.proteins.every(function(p){return p.id===ignoreId||Math.abs(p.x-v)>=MIN_GAP;});};
+  if(ok(x))return x;
+  for(let d=5;d<=X_MAX-X_MIN;d+=5){if(ok(x+d))return x+d;if(ok(x-d))return x-d;}
+  return null;
+}
+function addProtein(type,x){
+  if(type!==MODECFG[mode].prot)return null;
+  if(S.proteins.length>=MAX_PROT){toast(t('msgMaxProt',{m:MAX_PROT}));return null;}
+  const fx=freeX(x);if(fx===null){toast(t('msgNoRoom'));return null;}
+  const pr={id:S.nextId++,type:type,x:fx,glow:0};
+  if(type==='pump'){pr.st='idle';pr.conf=0;pr.dir=0;pr.tm=0;pr.rel=0;pr.sg=false;pr.fx=0;pr.wantNa=false;pr.wantK=false;}
+  else pr.busy=null;
+  S.proteins.push(pr);
+  setCaption(type==='pump'?'msgInstalled':'msgChanInstalled',null,4500);
+  return pr;
+}
+function removeProtein(pr){detachProtein(pr);S.proteins=S.proteins.filter(function(q){return q!==pr;});}
+let drag=null;
+function overMembrane(pt){return pt.x>=0&&pt.x<=W&&Math.abs(pt.y-MY)<=95;}
+function setGlow(on){document.getElementById('dropGlow').setAttribute('opacity',on?'0.28':'0');}
+function startNewDrag(e,type,card){
+  e.preventDefault();
+  if(S.proteins.length>=MAX_PROT){toast(t('msgMaxProt',{m:MAX_PROT}));return;}
+  const ghost=document.createElement('div');ghost.className='ghost';
+  const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox','-50 -62 100 124');svg.setAttribute('width','100%');svg.setAttribute('height','100%');
+  if(type==='pump')buildPump(svg);else buildChannel(svg);
+  ghost.appendChild(svg);document.body.appendChild(ghost);
+  ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';
+  drag={mode:'new',type:type,ghost:ghost,pid:e.pointerId};
+}
+function startPlacedDrag(e,pr){
+  e.preventDefault();e.stopPropagation();
+  drag={mode:'placed',pr:pr,pid:e.pointerId,sx:e.clientX,sy:e.clientY,moved:false,g:gmap.get(pr.id).g};
+}
+window.addEventListener('pointermove',function(e){
+  if(!drag||e.pointerId!==drag.pid)return;
+  if(drag.mode==='new'){
+    drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px';
+    setGlow(overMembrane(toSvg(e.clientX,e.clientY)));
+  }else{
+    if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>7){
+      drag.moved=true;detachProtein(drag.pr);S.proteins=S.proteins.filter(function(q){return q!==drag.pr;});
+      drag.g._drag=true;drag.g.style.opacity='.9';
+    }
+    if(drag.moved){const pt=toSvg(e.clientX,e.clientY);drag.pt=pt;
+      drag.g.setAttribute('transform','translate('+pt.x.toFixed(1)+' '+pt.y.toFixed(1)+')');
+      setGlow(overMembrane(pt));}
+  }
+},{passive:false});
+function endDrag(e,cancel){
+  if(!drag||e.pointerId!==drag.pid)return;
+  const d=drag;drag=null;setGlow(false);
+  if(d.mode==='new'){
+    d.ghost.remove();
+    if(!cancel){const pt=toSvg(e.clientX,e.clientY);
+      if(overMembrane(pt))addProtein(d.type,pt.x);
+      else if(pt.x>=0&&pt.x<=W&&pt.y>=0&&pt.y<=H)toast(t('msgDropHere'));}
+  }else{
+    if(!d.moved){S.proteins.forEach(function(q){if(q!==d.pr)q.sel=false;});d.pr.sel=!d.pr.sel;}
+    else{
+      d.g._drag=false;d.g.style.opacity='';
+      const pt=d.pt||toSvg(e.clientX,e.clientY);
+      if(!cancel&&overMembrane(pt)){
+        const fx=freeX(pt.x);
+        if(fx===null){toast(t('msgNoRoom'));}
+        else{const np={id:S.nextId++,type:d.pr.type,x:fx,glow:0};
+          if(np.type==='pump'){np.st='idle';np.conf=0;np.dir=0;np.tm=0;np.rel=0;np.sg=false;np.fx=0;np.wantNa=false;np.wantK=false;}else np.busy=null;
+          S.proteins.push(np);}
+      }
+    }
+  }
+}
+window.addEventListener('pointerup',function(e){endDrag(e,false);});
+window.addEventListener('pointercancel',function(e){endDrag(e,true);});
+document.addEventListener('touchmove',function(e){if(drag)e.preventDefault();},{passive:false});
+['contextmenu','dragstart'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault();});});
+
+/* ======================================================================
+   3 & 4. MEMBRANE + PROTEIN RENDERING (inline SVG)
+   ====================================================================== */
+const NS='http://www.w3.org/2000/svg';
+function se(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function buildChannel(g){
+  const r={};
+  r.glow=se('rect',{x:-36,y:-50,width:72,height:100,rx:14,fill:'none',stroke:'#ff9800','stroke-width':6,opacity:0},g);
+  se('rect',{x:-13,y:-46,width:26,height:92,fill:'#fff6d6'},g);
+  se('path',{d:'M-30 -46 L-12 -46 L-12 -12 L-9.5 0 L-12 12 L-12 46 L-30 46Z',fill:'#f6b73c',stroke:'#8a5a00','stroke-width':2.2,'stroke-linejoin':'round'},g);
+  se('path',{d:'M30 -46 L12 -46 L12 -12 L9.5 0 L12 12 L12 46 L30 46Z',fill:'#f6b73c',stroke:'#8a5a00','stroke-width':2.2,'stroke-linejoin':'round'},g);
+  se('circle',{cx:-21,cy:-30,r:4,fill:'#ffd773'},g);se('circle',{cx:21,cy:30,r:4,fill:'#ffd773'},g);
+  return r;
+}
+function buildPump(g){
+  const r={};
+  r.glow=se('rect',{x:-40,y:-54,width:80,height:108,rx:16,fill:'none',stroke:'#ff9800','stroke-width':5,opacity:0},g);
+  r.body=se('rect',{x:-36,y:-50,width:72,height:100,rx:14,fill:'#1fa39a',stroke:'#0b4f4b','stroke-width':2.4},g);
+  se('path',{d:'M-36 -20 Q-26 -10 -36 0 Q-26 10 -36 20',fill:'none',stroke:'#7b4fb0','stroke-width':4,'stroke-linecap':'round'},g);
+  se('path',{d:'M36 -20 Q26 -10 36 0 Q26 10 36 20',fill:'none',stroke:'#7b4fb0','stroke-width':4,'stroke-linecap':'round'},g);
+  r.cavIn=se('path',{d:'M-26 50 L26 50 L9 -22 L-9 -22Z',fill:'#fff1dc',stroke:'#0b4f4b','stroke-width':1.5},g);
+  r.cavOut=se('path',{d:'',fill:'#d5ebfc',stroke:'#0b4f4b','stroke-width':1.5},g);
+  r.site=se('circle',{cx:ATP_SITE[0],cy:ATP_SITE[1],r:14,fill:'none',stroke:'#2e7d32','stroke-width':2,'stroke-dasharray':'4 3'},g);
+  r.fxc=se('circle',{cx:ATP_SITE[0],cy:ATP_SITE[1],r:14,fill:'none',stroke:'#ffb300','stroke-width':4,opacity:0},g);
+  return r;
+}
+const gmap=new Map();
+function ensureProtGroup(pr){
+  let rec=gmap.get(pr.id);if(rec)return rec;
+  const g=se('g',{},document.getElementById('protLayer'));g.style.cursor='grab';
+  const body=se('g',{},g);
+  rec=pr.type==='pump'?buildPump(body):buildChannel(body);rec.g=g;rec.type=pr.type;
+  rec.lab=se('text',{x:0,y:-84,'text-anchor':'middle','font-size':11,'font-weight':700,fill:'#14315a',class:'lbl halo'},g);
+  if(pr.type==='pump'){
+    rec.eb=se('g',{},g);se('rect',{x:-30,y:-76,width:60,height:17,rx:8,fill:'#fff',stroke:'#14315a','stroke-width':1.2},rec.eb);
+    rec.et=se('text',{x:0,y:-63.5,'text-anchor':'middle','font-size':11,'font-weight':800,fill:'#14315a'},rec.eb);
+    rec.lab.setAttribute('y',-82);
+  }
+  rec.del=se('g',{style:'display:none'},g);
+  se('circle',{cx:0,cy:80,r:15,fill:'#d32f2f',stroke:'#fff','stroke-width':2},rec.del);
+  se('text',{x:0,y:86,'text-anchor':'middle','font-size':17,'font-weight':800,fill:'#fff'},rec.del).textContent='✕';
+  rec.del.style.cursor='pointer';
+  rec.del.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();const p=S.proteins.find(function(q){return q.id===pr.id;});if(p)removeProtein(p);});
+  g.addEventListener('pointerdown',function(e){const p=S.proteins.find(function(q){return q.id===pr.id;});if(p)startPlacedDrag(e,p);});
+  gmap.set(pr.id,rec);return rec;
+}
+function mixColor(a,b,u){const pa=[1,3,5].map(function(i){return parseInt(a.substr(i,2),16);}),pb=[1,3,5].map(function(i){return parseInt(b.substr(i,2),16);});
+  return'rgb('+pa.map(function(v,i){return Math.round(lerp(v,pb[i],u));}).join(',')+')';}
+function pumpPaths(conf){
+  const oi=clamp(1-2*conf,0,1),oo=clamp(2*conf-1,0,1);
+  return[oi>0.01?'M-26 50 L26 50 L9 '+(50-72*oi).toFixed(1)+' L-9 '+(50-72*oi).toFixed(1)+'Z':'',
+         oo>0.01?'M-26 -50 L26 -50 L9 '+(-50+72*oo).toFixed(1)+' L-9 '+(-50+72*oo).toFixed(1)+'Z':''];
+}
+function renderProteins(C){
+  const ids=new Set(S.proteins.map(function(p){return p.id;}));
+  gmap.forEach(function(rec,id){if(!ids.has(id)&&!rec.g._drag){rec.g.remove();gmap.delete(id);}});
+  const sorted=S.proteins.slice().sort(function(a,b){return a.x-b.x;});
+  sorted.forEach(function(pr,idx){
+    const rec=ensureProtGroup(pr);
+    if(!rec.g._drag)rec.g.setAttribute('transform','translate('+pr.x.toFixed(1)+' '+MY+')');
+    const lab='#'+(idx+1)+' '+t(pr.type==='pump'?'pump':'channel');
+    if(rec._lab!==lab+langStamp){rec.lab.textContent=lab;rec._lab=lab+langStamp;}
+    rec.del.style.display=pr.sel?'':'none';
+    if(pr.type==='pump'){
+      if(rec._conf!==pr.conf){rec._conf=pr.conf;const d=pumpPaths(pr.conf);rec.cavIn.setAttribute('d',d[0]);rec.cavOut.setAttribute('d',d[1]);
+        rec.body.setAttribute('fill',mixColor('#1fa39a','#7b4fb0',pr.conf));
+        let e='E1';if(pr.conf>=0.999)e='E2';else if(pr.conf>0.001)e=pr.dir>0?'E1→E2':'E2→E1';rec.et.textContent=e;}
+      const active=pr.st!=='idle'&&pr.st!=='done';
+      rec.glow.setAttribute('opacity',active?0.8:0);
+      rec.site.setAttribute('opacity',pr.st==='idle'?1:0);
+      const f=pr.fx>0?pr.fx/0.7:0;rec.fxc.setAttribute('opacity',f.toFixed(2));rec.fxc.setAttribute('r',(14+(1-f)*26).toFixed(1));
+    }else{
+      rec.glow.setAttribute('opacity',Math.min(1,Math.max(0,pr.glow*2.2)).toFixed(2));
+    }
+  });
+}
+/* particles */
+const pmap=new Map();
+function gasIcon(g,kind,k){
+  const red='#e8453c',rs='#8f1d17';
+  if(kind==='o2'){
+    se('line',{x1:-5*k,y1:-1.6*k,x2:5*k,y2:-1.6*k,stroke:rs,'stroke-width':1.4*k},g);se('line',{x1:-5*k,y1:1.6*k,x2:5*k,y2:1.6*k,stroke:rs,'stroke-width':1.4*k},g);
+    se('circle',{cx:-5.4*k,r:5.6*k,fill:red,stroke:rs,'stroke-width':1.4*k},g);se('circle',{cx:5.4*k,r:5.6*k,fill:red,stroke:rs,'stroke-width':1.4*k},g);
+    se('text',{y:17*k,'text-anchor':'middle','font-size':9*k,'font-weight':800,fill:'#8f1d17',class:'lbl halo'},g).textContent='O₂';
+  }else{
+    se('circle',{cx:-11*k,r:5*k,fill:red,stroke:rs,'stroke-width':1.4*k},g);se('circle',{cx:11*k,r:5*k,fill:red,stroke:rs,'stroke-width':1.4*k},g);
+    se('circle',{r:5.6*k,fill:'#6b7785',stroke:'#2b3138','stroke-width':1.4*k},g);
+    se('text',{y:17*k,'text-anchor':'middle','font-size':9*k,'font-weight':800,fill:'#2b3138',class:'lbl halo'},g).textContent='CO₂';
+  }
+}
+function makeParticleEl(p){
+  const g=se('g',{},document.getElementById('partLayer'));
+  if(p.kind==='atp'){
+    const s=se('g',{transform:'scale(.78) translate(-3 0)'},g);
+    se('polygon',{points:'-17,-5 -12,-9 -6,-7 -5,0 -10,4 -16,2',fill:'#2e9b4a',stroke:'#16622a','stroke-width':1.3},s);
+    se('polygon',{points:'-2,-4 3,-6 7,-2 4,3 -1,2',fill:'#7bd389',stroke:'#16622a','stroke-width':1.3},s);
+    [11,18,25].forEach(function(x){se('circle',{cx:x,cy:-1,r:4.4,fill:'#a8e6b0',stroke:'#16622a','stroke-width':1.3},s);});
+    se('line',{x1:-5,y1:-1,x2:-1,y2:-1,stroke:'#16622a','stroke-width':1.3},s);se('line',{x1:7,y1:-1,x2:7,y2:-1,stroke:'#16622a'},s);
+    se('text',{x:0,y:17,'text-anchor':'middle','font-size':9,'font-weight':800,fill:'#14532d',class:'lbl halo'},g).textContent='ATP';
+  }else if(p.kind==='o2'||p.kind==='co2'){
+    gasIcon(g,p.kind,1);
+  }else{
+    const na=p.kind==='na';
+    se('circle',{r:R,fill:na?'#f6d32d':'#4db3f7',stroke:na?'#a88b00':'#0f5c99','stroke-width':1.6},g);
+    se('text',{y:3,'text-anchor':'middle','font-size':8.5,'font-weight':800,fill:na?'#4a3d00':'#06304f',class:'lbl'},g).textContent=na?'Na⁺':'K⁺';
+    se('text',{y:4.2,'text-anchor':'middle','font-size':13,'font-weight':800,fill:na?'#4a3d00':'#06304f',class:'chg'},g).textContent='+';
+  }
+  return g;
+}
+function renderParticles(){
+  const seen=new Set();
+  for(let i=0;i<S.particles.length;i++){const p=S.particles[i];
+    let e=pmap.get(p.id);if(!e){e=makeParticleEl(p);pmap.set(p.id,e);}
+    seen.add(p.id);
+    e.setAttribute('transform','translate('+p.x.toFixed(1)+' '+p.y.toFixed(1)+')');
+    if(p.kind==='atp'){const b=p.st==='atpBound'||p.st==='atpBinding';if(e._b!==b){e._b=b;e.classList.toggle('atp-bound',b);}}
+  }
+  if(pmap.size!==seen.size){pmap.forEach(function(e,id){if(!seen.has(id)){e.remove();pmap.delete(id);}});}
+}
+
+/* ======================================================================
+   9. CONCENTRATION MONITOR + status/caption
+   ====================================================================== */
+function netOf(k){let n=0;S.ev.forEach(function(e){if(e.k===k)n+=e.d;});return n;}
+function netText(k){const n=netOf(k);return n>0?t('netIn',{n:n}):n<0?t('netOut',{n:-n}):t('netNone');}
+function gradText(o,i){return o>i?t('gradOutIn'):o<i?t('gradInOut'):t('gradEq');}
+function mM(n){return n*SCALE;}
+let monSig='';
+function buildMonitor(){
+  const m=document.getElementById('monitor');monSig='';
+  if(mode==='ves')m.innerHTML='<div class="steps" id="vSteps"></div>';
+  else if(mode==='passive')m.innerHTML='<h2><span data-i18n="concMonitor"></span></h2><div class="card" id="cNa"></div><div class="card" id="cCo2"></div><div class="card" id="cO2"></div>';
+  else m.innerHTML='<h2><span data-i18n="concMonitor"></span></h2><div class="card" id="cNa"></div><div class="card" id="cK"></div><div class="card" id="cAtp"></div>';
+}
+function barRow(label,cls,v,max,id){return'<div class="bar"><span>'+label+'</span><div class="trk"><i class="'+cls+'" style="width:'+Math.min(100,v/max*100).toFixed(0)+'%"></i></div></div>';}
+function miniIcon(kind){return'<span class="mi">'+ICONS[kind]+'</span>';}
+function gasCard(kind,key){
+  return'<h4>'+miniIcon(kind)+t(kind)+'</h4>'+barRow(t('outside'),'fo',lastC[key+'Out'],MAXP[kind])+barRow(t('inside'),'fi',lastC[key+'In'],MAXP[kind]);
+}
+let lastC={};
+function updateMonitor(C){
+  lastC=C;
+  if(mode==='ves'){
+    const st=vStage(),v=S.v,e=v[v.proc],fin=e.ph==='done';
+    const sig='v|'+v.proc+'|'+st+'|'+fin+'|'+langStamp;if(sig===monSig)return;monSig=sig;
+    let h='';for(let i=1;i<=3;i++){h+='<div class="stp'+(fin||i<st?' done':'')+(!fin&&i===st?' on':'')+'"><b>'+(fin||i<st?'✓':i)+'</b>'+'<span>'+t(({pino:'stPi',phago:'stPh',exo:'stEx'})[v.proc]+i)+'</span></div>';}
+    document.getElementById('vSteps').innerHTML=h;return;
+  }
+  if(mode==='passive'){
+    const sig=['p',C.naOut,C.naIn,C.co2Out,C.co2In,C.o2Out,C.o2In,langStamp].join('|');if(sig===monSig)return;monSig=sig;
+    document.getElementById('cNa').innerHTML='<h4>'+miniIcon('na')+t('na')+'</h4>'+barRow(t('outside'),'fo',C.naOut,MAXP.na)+barRow(t('inside'),'fi',C.naIn,MAXP.na);
+    document.getElementById('cCo2').innerHTML=gasCard('co2','co2');
+    document.getElementById('cO2').innerHTML=gasCard('o2','o2');
+    return;
+  }
+  const sig=['a',C.naOut,C.naIn,C.kOut,C.kIn,C.atpIn,C.atpBound,S.c.atpConsumed,langStamp].join('|');
+  if(sig===monSig)return;monSig=sig;
+  document.getElementById('cNa').innerHTML='<h4>'+miniIcon('na')+t('na')+' (Na⁺)</h4>'+barRow(t('outside'),'fo',C.naOut,MAXP.na)+barRow(t('inside'),'fi',C.naIn,MAXP.na);
+  document.getElementById('cK').innerHTML='<h4>'+miniIcon('k')+t('k')+' (K⁺)</h4>'+barRow(t('outside'),'fo',C.kOut,MAXP.k)+barRow(t('inside'),'fi',C.kIn,MAXP.k);
+  document.getElementById('cAtp').innerHTML='<h4>'+miniIcon('atp')+t('atp')+'</h4>'+barRow(t('inside'),'fa',C.atpIn,MAXP.atp)+
+    '<div class="sum">'+t('consumed')+': <b>'+S.c.atpConsumed+'</b> · '+t('atpBoundN')+': <b>'+C.atpBound+'</b></div>';
+}
+function setCaption(key,vars,ms){cap={key:key,vars:vars||null,until:performance.now()+(ms||3500)};}
+let lastCap='',lastStatus='';
+function pumpStatus(pu,C){
+  switch(pu.st){
+    case 'idle':return C.atpIn===0?t('msgNoAtp'):t('msgWaitBind');
+    case 'atpBind':return t('stAtpBind');
+    case 'naBind':{const n=S.particles.filter(function(q){return q.owner===pu.id&&q.kind==='na'&&q.st==='boundNa';}).length;
+      return(C.naIn+0<3&&n<3)?t('msgNeedNa'):t('stNaBind',{n:n});}
+    case 'toE2':return t('stToE2');
+    case 'naRelease':return t('stNaRel');
+    case 'kBind':{const n=S.particles.filter(function(q){return q.owner===pu.id&&q.kind==='k'&&q.st==='boundK';}).length;
+      return(C.kOut<2&&n<2)?t('msgNeedK'):t('stKBind',{n:n});}
+    case 'toE1':return t('stToE1');
+    case 'kRelease':return t('stKRel');
+    case 'done':return t('msgCycle');
+  }return'';
+}
+function renderStatus(C){
+  const el=document.getElementById('status');
+  const list=S.proteins.slice().sort(function(a,b){return a.x-b.x;});
+  const parts=list.map(function(pr,i){
+    if(pr.type==='pump'){const e=pr.conf>=0.999?'E2':pr.conf<=0.001?'E1':(pr.dir>0?'E1→E2':'E2→E1');
+      return'<span class="chip pump">#'+(i+1)+' '+t('pump')+' · '+e+' · '+pumpStatus(pr,C)+'</span>';}
+    return'<span class="chip chan">#'+(i+1)+' '+t('channel')+'</span>';
+  });
+  const html=parts.join('');if(html!==lastStatus){lastStatus=html;el.innerHTML=html;}
+}
+function renderCaption(){
+  let txt;
+  if(mode==='ves')txt=t(vCapKey());
+  else if(cap&&performance.now()<cap.until)txt=t(cap.key,cap.vars);
+  else txt=!S.proteins.length?t(mode==='passive'?'capIdleP':'capIdleA'):(running?t('capRun'):t('capPaused'));
+  if(txt!==lastCap){lastCap=txt;document.getElementById('caption').textContent=txt;}
+}
+function render(){
+  if(mode==='ves'){vRender();updateMonitor({});renderStatus({});renderCaption();return;}
+  const C=counts();
+  renderParticles();renderProteins(C);updateMonitor(C);renderStatus(C);renderCaption();updateLeftValues(C);
+}
+
+/* ======================================================================
+   LEFT PANEL (solutes + concentration controls)
+   ====================================================================== */
+const ICONS={
+ na:'<svg viewBox="-30 -30 60 60" aria-hidden="true"><circle r="26" fill="#f6d32d" stroke="#a88b00" stroke-width="3"/><text y="8" text-anchor="middle" font-size="22" font-weight="800" fill="#4a3d00">Na⁺</text></svg>',
+ k:'<svg viewBox="-30 -30 60 60" aria-hidden="true"><circle r="26" fill="#4db3f7" stroke="#0f5c99" stroke-width="3"/><text y="8.5" text-anchor="middle" font-size="25" font-weight="800" fill="#06304f">K⁺</text></svg>',
+ atp:'<svg viewBox="-36 -30 72 60" aria-hidden="true"><g transform="scale(1.4) translate(-4 -3)"><polygon points="-17,-5 -12,-9 -6,-7 -5,0 -10,4 -16,2" fill="#2e9b4a" stroke="#16622a" stroke-width="1.3"/><polygon points="-2,-4 3,-6 7,-2 4,3 -1,2" fill="#7bd389" stroke="#16622a" stroke-width="1.3"/><circle cx="11" cy="-1" r="4.4" fill="#a8e6b0" stroke="#16622a" stroke-width="1.3"/><circle cx="18" cy="-1" r="4.4" fill="#a8e6b0" stroke="#16622a" stroke-width="1.3"/><circle cx="25" cy="-1" r="4.4" fill="#a8e6b0" stroke="#16622a" stroke-width="1.3"/></g><text y="26" text-anchor="middle" font-size="13" font-weight="800" fill="#14532d">ATP</text></svg>',
+ co2:'<svg viewBox="-30 -30 60 60" aria-hidden="true"><circle cx="-19" cy="-3" r="10.5" fill="#e8453c" stroke="#8f1d17" stroke-width="2.6"/><circle cx="19" cy="-3" r="10.5" fill="#e8453c" stroke="#8f1d17" stroke-width="2.6"/><circle cy="-3" r="12" fill="#6b7785" stroke="#2b3138" stroke-width="2.6"/><text y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#2b3138">CO₂</text></svg>',
+ o2:'<svg viewBox="-30 -30 60 60" aria-hidden="true"><line x1="-11" y1="-7" x2="11" y2="-7" stroke="#8f1d17" stroke-width="3"/><line x1="-11" y1="-1" x2="11" y2="-1" stroke="#8f1d17" stroke-width="3"/><circle cx="-12" cy="-4" r="12.5" fill="#e8453c" stroke="#8f1d17" stroke-width="2.6"/><circle cx="12" cy="-4" r="12.5" fill="#e8453c" stroke="#8f1d17" stroke-width="2.6"/><text y="25" text-anchor="middle" font-size="14" font-weight="800" fill="#8f1d17">O₂</text></svg>'};
+const PROC_ICONS={
+ pino:'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M2 20 H17 Q22 20 22 29 Q22 46 32 46 Q42 46 42 29 Q42 20 47 20 H62" fill="none" stroke="#f5a623" stroke-width="7" stroke-linecap="round"/><path d="M2 20 H17 Q22 20 22 29 Q22 46 32 46 Q42 46 42 29 Q42 20 47 20 H62" fill="none" stroke="#e0508a" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="32" r="10" fill="#bfe0fb" stroke="#4a93d1" stroke-width="2"/><circle cx="28" cy="29" r="2.2" fill="#6a2fb0"/><circle cx="36" cy="30" r="2.2" fill="#6a2fb0"/><circle cx="31" cy="37" r="2.2" fill="#6a2fb0"/><circle cx="37" cy="36" r="2" fill="#6a2fb0"/><path d="M32 4 V13" stroke="#14315a" stroke-width="3" stroke-linecap="round"/><path d="M27 9 L32 15 L37 9" fill="none" stroke="#14315a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ phago:'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M2 20 H17 Q22 20 22 29 Q22 46 32 46 Q42 46 42 29 Q42 20 47 20 H62" fill="none" stroke="#f5a623" stroke-width="7" stroke-linecap="round"/><path d="M2 20 H17 Q22 20 22 29 Q22 46 32 46 Q42 46 42 29 Q42 20 47 20 H62" fill="none" stroke="#e0508a" stroke-width="2" stroke-linecap="round"/><polygon points="24,30 29,23 38,24 41,32 37,40 28,40" fill="#7a5a3c" stroke="#3e2a17" stroke-width="2"/><path d="M32 4 V13" stroke="#14315a" stroke-width="3" stroke-linecap="round"/><path d="M27 9 L32 15 L37 9" fill="none" stroke="#14315a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ exo:'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M2 40 H14 Q19 40 19 33 Q19 20 32 20 Q45 20 45 33 Q45 40 50 40 H62" fill="none" stroke="#f5a623" stroke-width="7" stroke-linecap="round" transform="translate(0 6)"/><path d="M2 40 H14 Q19 40 19 33 Q19 20 32 20 Q45 20 45 33 Q45 40 50 40 H62" fill="none" stroke="#e0508a" stroke-width="2" stroke-linecap="round" transform="translate(0 6)"/><circle cx="26" cy="38" r="4.5" fill="#8a5fd1" stroke="#4a2c8c"/><circle cx="37" cy="36" r="4.5" fill="#8a5fd1" stroke="#4a2c8c"/><circle cx="31" cy="26" r="4.5" fill="#8a5fd1" stroke="#4a2c8c"/><path d="M32 18 V6" stroke="#14315a" stroke-width="3" stroke-linecap="round"/><path d="M27 11 L32 5 L37 11" fill="none" stroke="#14315a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+function buildLeft(){
+  const cols=document.getElementById('leftCols');cols.innerHTML='';
+  document.querySelector('#left>h2').setAttribute('data-i18n',mode==='ves'?'process':'solutes');
+  if(mode==='ves'){
+    const gd=document.createElement('div');gd.className='grp';
+    ['pino','phago','exo'].forEach(function(p){
+      const b=document.createElement('button');b.type='button';b.className='proc';b.dataset.p=p;
+      b.innerHTML=PROC_ICONS[p]+'<span data-i18n="'+p+'"></span>';
+      b.addEventListener('click',function(){S.v.proc=p;monSig='';lastCap='';markProc();});
+      gd.appendChild(b);
+    });
+    cols.appendChild(gd);markProc();return;
+  }
+  ['ecf','cyto'].forEach(function(g){
+    const gd=document.createElement('div');gd.className='grp '+g;
+    gd.innerHTML='<h3 data-i18n="'+g+'"></h3>';
+    MODECFG[mode].rows.filter(function(r){return r.g===g;}).forEach(function(r){
+      const key=keyOf(r.kind,r.comp);
+      const row=document.createElement('div');row.className='row';row.dataset.key=key;
+      row.innerHTML='<span class="ic">'+ICONS[r.kind]+'</span><span class="nm" data-i18n="'+r.kind+'"></span>'+
+        '<div class="ctl"><input type="range" min="0" max="'+MAXP[r.kind]+'" step="1" value="0" aria-label=""></div>';
+      const inp=row.querySelector('input');
+      inp.addEventListener('pointerdown',function(){inp._act=true;});
+      ['pointerup','pointercancel','blur'].forEach(function(n){inp.addEventListener(n,function(){inp._act=false;});});
+      inp.addEventListener('input',function(){const got=adjustTo(r.kind,r.comp,parseInt(inp.value,10));setp[key]=got;});
+      gd.appendChild(row);
+    });
+    cols.appendChild(gd);
+  });
+}
+function markProc(){document.querySelectorAll('#leftCols .proc').forEach(function(b){b.classList.toggle('on',b.dataset.p===S.v.proc);});}
+let leftSig='';
+function updateLeftValues(C){
+  const sig=[mode,C.naOut,C.naIn,C.kOut,C.kIn,C.atpIn,C.co2Out,C.co2In,C.o2Out,C.o2In,langStamp].join('|');if(sig===leftSig)return;leftSig=sig;
+  document.querySelectorAll('#leftCols .row').forEach(function(row){
+    const inp=row.querySelector('input');
+    if(!inp._act)inp.value=C[row.dataset.key]||0;
+    inp.setAttribute('aria-label',t(row.querySelector('.nm').getAttribute('data-i18n')));
+  });
+}
+
+/* ======================================================================
+   i18n application + UI wiring
+   ====================================================================== */
+function applyLang(){
+  langStamp++;monSig='';leftSig='';lastStatus='';lastCap='';
+  document.documentElement.lang=lang==='vi'?'vi':'en';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.textContent=t(el.getAttribute('data-i18n'),{s:SCALE});});
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el){const v=t(el.getAttribute('data-i18n-title'));el.title=v;el.setAttribute('aria-label',v);});
+  document.getElementById('qEn').classList.toggle('on',lang==='en');document.getElementById('qVi').classList.toggle('on',lang==='vi');
+  document.querySelectorAll('#langRadios .btn').forEach(function(b){b.classList.toggle('on',b.dataset.l===lang);});
+  document.querySelectorAll('.modes .btn').forEach(function(b){b.classList.toggle('on',b.dataset.m===mode);});
+  if(document.getElementById('home').classList.contains('open'))buildHome();
+  updatePlayBtn();renderInfo();renderChallenges();
+  document.getElementById('objBtn').textContent=t(document.getElementById('objBox').style.display==='none'?'showObj':'hideObj');
+  document.title=t('title');
+}
+function setLang(l){
+  if(l==='custom'&&!custom)custom=Object.assign({},I18N[lang==='custom'?'vi':lang]);
+  lang=l;saveSettings();applyLang();fillEditor();
+}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(function(){el.style.display='none';},2600);}
+/* terminology editor */
+function onTermInput(key,val){
+  if(lang!=='custom'){custom=Object.assign({},I18N[lang]);lang='custom';
+    document.querySelectorAll('#langRadios .btn').forEach(function(b){b.classList.toggle('on',b.dataset.l==='custom');});}
+  custom[key]=val;saveSettings();
+  const keep=document.activeElement;applyLang();if(keep&&keep.focus)keep.focus();
+}
+function fillEditor(){
+  const mk=function(parent,keys){parent.innerHTML='';
+    keys.forEach(function(k){const lab=document.createElement('label');lab.textContent=I18N.en[k].length>46?k:I18N.en[k]+(CORE.indexOf(k)<0?'  ['+k+']':'');
+      const inp=document.createElement('input');inp.type='text';inp.value=raw(k);inp.dataset.k=k;
+      inp.addEventListener('input',function(){onTermInput(k,inp.value);});
+      lab.appendChild(inp);parent.appendChild(lab);});};
+  mk(document.getElementById('termsCore'),CORE);
+  mk(document.getElementById('termsAdv'),Object.keys(I18N.en).filter(function(k){return CORE.indexOf(k)<0;}));
+}
+function exportSettings(){
+  const o={format:'membrane-transport-lab-settings',version:1,lang:lang,custom:custom};
+  const s=JSON.stringify(o,null,2);document.getElementById('setJson').value=s;
+  try{const b=new Blob([s],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='membrane-lab-settings.json';
+    document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(a.href);},500);}catch(e){}
+  document.getElementById('setMsg').textContent=t('setExported');
+}
+function importSettings(text){
+  try{const o=JSON.parse(text);const c=sanitizeCustom(o.custom);
+    if(!c&&o.lang!=='en'&&o.lang!=='vi')throw new Error('bad');
+    custom=c;lang=(o.lang==='custom'&&c)?'custom':(o.lang==='en'||o.lang==='vi'?o.lang:(c?'custom':lang));
+    saveSettings();applyLang();fillEditor();document.getElementById('setMsg').textContent=t('setImportOk');
+  }catch(e){document.getElementById('setMsg').textContent=t('setImportErr');}
+}
+
+/* ---- Info dialog ---- */
+let infoTab='fd',objOpen=false;
+function renderInfo(){
+  const n=infoTab==='fd'?['sd1','sd2','fd1','fd2','fd3','fd4','fd5']:infoTab==='at'?['at1','at2','at3','at4','at5']:['vt1','vt2','vt3','vt4','vt5'];
+  document.getElementById('infoList').innerHTML=n.map(function(k){return'<li></li>';}).join('');
+  document.querySelectorAll('#infoList li').forEach(function(li,i){li.textContent=t(n[i]);});
+  const ob=document.getElementById('objBox');
+  ob.innerHTML='<b></b><ul></ul>';ob.querySelector('b').textContent=t('objTitle');
+  ob.querySelector('ul').innerHTML='<li></li><li></li><li></li><li></li>';
+  ob.querySelectorAll('li').forEach(function(li,i){li.textContent=t('obj'+(i+1));});
+  document.getElementById('tabFD').classList.toggle('on',infoTab==='fd');document.getElementById('tabAT').classList.toggle('on',infoTab==='at');document.getElementById('tabVT').classList.toggle('on',infoTab==='vt');
+}
+
+/* ======================================================================
+   VESICULAR TRANSPORT  – endocytosis / exocytosis drawn with a real phospholipid bilayer
+   (every phospholipid = hydrophilic head + two hydrophobic tails; both leaflets bend together)
+   ====================================================================== */
+const VC=420,VR=45,VT=17,VNT=18,VHR=5,VTL=14,VK=34,VBRK=50;
+const VDC=VR*(1+Math.sqrt(1-(VNT/VR)*(VNT/VR)));       // invagination depth at which the neck is as narrow as the tether
+const VCY_BRK=MY-VR+VDC+VBRK;                           // centre of the vesicle at the moment of scission / docking
+function vNeck(D){return Math.sqrt(Math.max(0,2*VR*D-D*D));}
+function endoInit(){return{ph:'approach',t:0,D:0,L:0,x:VC-170,y:130,xf:0,y0:0};}
+function exoInit(){
+  const e={ph:'travel',t:0,D:VDC,L:VBRK,xf:0,vx:VC-230,vy:520,rel:0,relT:0,dots:[]};
+  for(let i=0;i<5;i++){const a=i*1.2566+0.3,r=i?11:0;e.dots.push({rx:Math.cos(a)*r,ry:Math.sin(a)*r,vx:rnd(-20,20),vy:rnd(-20,20),st:'in',x:0,y:0,w:0});}
+  return e;
+}
+function vFresh(){return{proc:'pino',pino:endoInit(),phago:endoInit(),exo:exoInit()};}
+
+/* ---- phase machines (all motions are eased; nothing jumps) ---- */
+function endoStep(e,dt){
+  e.t+=dt;
+  switch(e.ph){
+  case 'approach':{const u=ease(e.t/3);e.x=lerp(VC-170,VC,u);e.y=lerp(130,MY-45,u)+Math.sin(e.t*3)*(1-u)*6;
+    if(e.t>=3){e.ph='invag';e.t=0;e.x=VC;e.y=MY-45;}break;}
+  case 'invag':{e.D=ease(e.t/7.5)*VDC;e.x=VC;e.y=MY-45+e.D;if(e.t>=7.5){e.D=VDC;e.ph='tube';e.t=0;}break;}
+  case 'tube':{e.L=ease(e.t/1.8)*VBRK;e.y=MY-45+VDC+e.L;if(e.t>=1.8){e.L=VBRK;e.ph='split';e.t=0;}break;}
+  case 'split':{e.xf=Math.min(1,e.t/0.5);e.x=VC;e.y=VCY_BRK;if(e.t>=0.5){e.xf=1;e.ph='sink';e.t=0;e.y0=VCY_BRK;}break;}
+  case 'sink':{const u=ease(e.t/4);e.x=lerp(VC,VC+50,u);e.y=lerp(e.y0,e.y0+120,u);if(e.t>=4){e.ph='done';e.t=0;}break;}
+  }
+}
+function exoCenter(e){return(e.ph==='travel'||e.ph==='dock')?[e.vx,e.vy]:[VC,MY-VR+e.D+e.L];}
+function exoStep(e,dt){
+  e.t+=dt;
+  switch(e.ph){
+  case 'travel':{const u=ease(e.t/4.5);e.vx=lerp(VC-230,VC,u);e.vy=lerp(520,VCY_BRK,u);if(e.t>=4.5){e.ph='dock';e.t=0;e.vx=VC;e.vy=VCY_BRK;}break;}
+  case 'dock':if(e.t>=1.2){e.ph='fuse';e.t=0;}break;
+  case 'fuse':{e.xf=Math.min(1,e.t/0.5);if(e.t>=0.5){e.ph='tube';e.t=0;e.xf=1;}break;}
+  case 'tube':{e.L=VBRK*(1-ease(e.t/1.8));if(e.t>=1.8){e.L=0;e.ph='pore';e.t=0;}break;}
+  case 'pore':{e.D=VDC*(1-ease(e.t/8));if(e.t>=8){e.D=0;e.ph='done';e.t=0;}break;}
+  }
+  const c=exoCenter(e);
+  if(e.ph==='pore'&&vNeck(e.D)>=27){          // pore wide enough: cargo leaves one by one, only through the opening
+    e.relT+=dt;
+    while(e.rel<e.dots.length&&e.relT>=e.rel*0.4){const d=e.dots[e.rel];d.st='exit';d.w=0;e.rel++;}
+  }
+  e.dots.forEach(function(d){
+    if(d.st==='in'){                           // confined inside the vesicle lumen until the pore is open
+      d.vx+=(Math.random()-.5)*300*dt;d.vy+=(Math.random()-.5)*300*dt;
+      const sp=Math.hypot(d.vx,d.vy);if(sp>40){d.vx*=40/sp;d.vy*=40/sp;}
+      d.rx+=d.vx*dt;d.ry+=d.vy*dt;
+      const r=Math.hypot(d.rx,d.ry),mx=VR-VT-VHR-6.5;if(r>mx){d.rx*=mx/r;d.ry*=mx/r;d.vx=-d.vx;d.vy=-d.vy;}
+      d.x=c[0]+d.rx;d.y=c[1]+d.ry;
+    }else if(d.st==='exit'){
+      const wx=VC,wy=d.w===0?MY+22:MY-40,dx=wx-d.x,dy=wy-d.y,dist=Math.hypot(dx,dy),step=110*dt;
+      if(dist<=step){d.x=wx;d.y=wy;if(d.w===0)d.w=1;else{d.st='free';d.vx=rnd(-40,40);d.vy=-60;}}
+      else{d.x+=dx/dist*step;d.y+=dy/dist*step;}
+    }else{
+      d.vx+=(Math.random()-.5)*300*dt;d.vy+=(Math.random()-.5)*300*dt;
+      const sp=Math.hypot(d.vx,d.vy);if(sp>80){d.vx*=80/sp;d.vy*=80/sp;}else if(sp<30&&sp>0){d.vx*=30/sp;d.vy*=30/sp;}
+      d.x+=d.vx*dt;d.y+=d.vy*dt;
+      if(d.x<10){d.x=10;d.vx=Math.abs(d.vx);}if(d.x>830){d.x=830;d.vx=-Math.abs(d.vx);}
+      if(d.y<10){d.y=10;d.vy=Math.abs(d.vy);}const bm=MY-VT-VHR-8;if(d.y>bm){d.y=bm;d.vy=-Math.abs(d.vy);}
+    }
+  });
+}
+function vTick(dt){S.time+=dt;const v=S.v,e=v[v.proc];if(v.proc!=='exo')endoStep(e,dt);else exoStep(e,dt);}
+function vReset(){const p=S.v.proc;S.v=vFresh();S.v.proc=p;S.time=0;}
+
+/* ---- geometry: centre-line of the membrane, then two leaflets are laid on its two sides ---- */
+function vBasePts(D,L){
+  if(D<1&&L===0)return[[0,MY],[W,MY]];
+  const tube=L>0,n=tube?VNT:vNeck(D),cy=MY-VR+D+L;
+  const relY=tube?-Math.sqrt(VR*VR-VNT*VNT):(VR-D),beta=Math.atan2(relY,n),yj=cy+relY,pts=[];
+  for(let x=0;x<VC-n-8;x+=24)pts.push([x,MY]);
+  pts.push([VC-n,MY]);
+  if(yj>MY+1)for(let y=MY+6;y<yj;y+=6)pts.push([VC-n,y]);
+  const a0=Math.PI-beta,a1=beta,N=Math.max(24,Math.round(Math.abs(a0-a1)*VR/4));
+  for(let k=0;k<=N;k++){const a=a0+(a1-a0)*k/N;pts.push([VC+VR*Math.cos(a),cy+VR*Math.sin(a)]);}
+  if(yj>MY+1)for(let y=yj-6;y>MY;y-=6)pts.push([VC+n,y]);
+  pts.push([VC+n,MY]);
+  for(let x=VC+n+24;x<W-8;x+=24)pts.push([x,MY]);
+  pts.push([W,MY]);
+  return pts;
+}
+function vSmooth(p){
+  for(let it=0;it<2;it++){const q=[p[0]];
+    for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1];q.push([.75*a[0]+.25*b[0],.75*a[1]+.25*b[1]],[.25*a[0]+.75*b[0],.25*a[1]+.75*b[1]]);}
+    q.push(p[p.length-1]);p=q;}
+  return p;
+}
+function vf(n){return n.toFixed(1);}
+function vLipid(x,y,cx,cy,hd,tl){          // (cx,cy) = unit vector from the head toward the middle of the bilayer
+  hd.push('M'+vf(x-VHR)+' '+vf(y)+'a'+VHR+' '+VHR+' 0 1 0 '+(2*VHR)+' 0a'+VHR+' '+VHR+' 0 1 0 -'+(2*VHR)+' 0');
+  const px=-cy,py=cx;
+  for(let s=-1;s<=1;s+=2){const o=s*2.4;
+    tl.push('M'+vf(x+cx*(VHR-0.5)+px*o)+' '+vf(y+cy*(VHR-0.5)+py*o)+'L'+vf(x+cx*(VTL+VHR*0.4)+px*o)+' '+vf(y+cy*(VTL+VHR*0.4)+py*o));}
+}
+function vLeaflet(p,sign,hd,tl){
+  const n=p.length,nx=new Array(n),ny=new Array(n),ox=new Array(n),oy=new Array(n),cum=new Array(n);
+  for(let i=0;i<n;i++){
+    const a=p[i>0?i-1:0],b=p[i<n-1?i+1:n-1];let tx=b[0]-a[0],ty=b[1]-a[1];const l=Math.hypot(tx,ty)||1;tx/=l;ty/=l;
+    nx[i]=ty;ny[i]=-tx;ox[i]=p[i][0]+sign*VT*nx[i];oy[i]=p[i][1]+sign*VT*ny[i];
+    cum[i]=i?cum[i-1]+Math.hypot(ox[i]-ox[i-1],oy[i]-oy[i-1]):0;
+  }
+  const Lt=cum[n-1],sp=Lt/2/VK;
+  const put=function(s){
+    let lo=0,hi=n-2;while(lo<hi){const m=(lo+hi+1)>>1;if(cum[m]<=s)lo=m;else hi=m-1;}
+    const seg=(cum[lo+1]-cum[lo])||1,u=Math.min(1,Math.max(0,(s-cum[lo])/seg));
+    const x=ox[lo]+(ox[lo+1]-ox[lo])*u,y=oy[lo]+(oy[lo+1]-oy[lo])*u;
+    let ax=nx[lo]+(nx[lo+1]-nx[lo])*u,ay=ny[lo]+(ny[lo+1]-ny[lo])*u;const l=Math.hypot(ax,ay)||1;ax/=l;ay/=l;
+    vLipid(x,y,-sign*ax,-sign*ay,hd,tl);
+  };
+  for(let k=0;k<=VK;k++)put(k*sp);
+  for(let k=1;k<VK;k++)put(Lt-k*sp);
+}
+function vRing(cx,cy,hd,tl){                // a closed vesicle: two complete rings, heads facing the lumen and the cytoplasm
+  const r1=VR+VT,n1=Math.round(2*Math.PI*r1/12.5),r2=VR-VT,n2=Math.round(2*Math.PI*r2/12.5);
+  for(let k=0;k<n1;k++){const a=k*2*Math.PI/n1+0.1,ux=Math.cos(a),uy=Math.sin(a);vLipid(cx+ux*r1,cy+uy*r1,-ux,-uy,hd,tl);}
+  for(let k=0;k<n2;k++){const a=k*2*Math.PI/n2,ux=Math.cos(a),uy=Math.sin(a);vLipid(cx+ux*r2,cy+uy*r2,ux,uy,hd,tl);}
+}
+function vSpecs(){
+  const v=S.v,e=v[v.proc];
+  if(v.proc!=='exo'){
+    switch(e.ph){
+    case 'approach':return{A:{D:0,L:0,a:1},B:null};
+    case 'invag':case 'tube':return{A:{D:e.D,L:e.L,a:1},B:null};
+    case 'split':return{A:{D:VDC,L:VBRK,a:1-e.xf},B:{rings:[[VC,VCY_BRK]],a:e.xf}};
+    default:return{A:null,B:{rings:[[e.x,e.y]],a:1}};
+    }
+  }
+  switch(e.ph){
+  case 'travel':case 'dock':return{A:null,B:{rings:[[e.vx,e.vy]],a:1}};
+  case 'fuse':return{A:{D:VDC,L:VBRK,a:e.xf},B:{rings:[[VC,VCY_BRK]],a:1-e.xf}};
+  case 'tube':case 'pore':return{A:{D:e.D,L:e.L,a:1},B:null};
+  default:return{A:{D:0,L:0,a:1},B:null};
+  }
+}
+const vEl={};
+function vGrab(id){const g=document.getElementById(id);return{g:g,poly:g.querySelector('.poly'),rb:g.querySelector('.rb'),lip:g.querySelector('.lip'),tl:g.querySelector('.tl'),hd:g.querySelector('.hd'),ring:null};}
+function vInitDom(){
+  vEl.A=vGrab('vSetA');vEl.B=vGrab('vSetB');
+  [vEl.A,vEl.B].forEach(function(el){el.ring=se('circle',{r:VR,fill:'#d5ebfc',display:'none'},el.rb);});
+  const lay=document.getElementById('vCargo');
+  const ec=se('g',{id:'vcE',style:'display:none'},lay);
+  const eP=se('g',{},ec),eS=se('g',{},ec);
+  se('circle',{r:24,fill:'#bfe0fb',stroke:'#4a93d1','stroke-width':2.4},eP);
+  vEl.sol=[];[[-10,-9],[9,-7],[-3,3],[10,9],[-11,10],[2,-14]].forEach(function(p){vEl.sol.push({el:se('circle',{r:3.8,fill:'#6a2fb0',stroke:'#3d1a6e','stroke-width':1},eP),x:p[0],y:p[1]});});
+  se('polygon',{points:'-20,-8 -10,-21 8,-21 21,-6 17,13 0,21 -16,15',fill:'#7a5a3c',stroke:'#3e2a17','stroke-width':2.4,'stroke-linejoin':'round'},eS);
+  se('path',{d:'M-9 -12 L2 -15 M-13 4 L-5 12 M8 6 L13 -2',stroke:'#b08a5f','stroke-width':2.2,'stroke-linecap':'round',fill:'none'},eS);
+  vEl.eP=eP;vEl.eS=eS;
+  const tg=se('g',{transform:'translate(420 64)'},document.getElementById('vCargo'));
+  se('rect',{x:-330,y:-19,width:660,height:38,rx:19,fill:'#fff',stroke:'#6a2fb0','stroke-width':2.5},tg);
+  vEl.tagT=se('text',{y:7,'text-anchor':'middle','font-size':17,'font-weight':800,fill:'#3d1a6e'},tg);vEl.tag=tg;
+  vEl.cargo=ec;vEl.dots=[];
+  for(let i=0;i<5;i++){const d=se('g',{style:'display:none'},lay);se('circle',{r:5.2,fill:'#8a5fd1',stroke:'#4a2c8c','stroke-width':1.5},d);se('circle',{cx:-1.6,cy:-1.6,r:1.5,fill:'#cdb8f2'},d);vEl.dots.push(d);}
+}
+function vDrawSet(el,spec,dominant){
+  if(!spec){el.g.style.display='none';return;}
+  el.g.style.display='';
+  const pts=vSmooth(vBasePts(spec.rings?0:spec.D,spec.rings?0:spec.L));
+  el.lip.setAttribute('opacity',spec.a.toFixed(2));
+  el.poly.style.display=dominant?'':'none';el.rb.style.display=dominant?'':'none';
+  if(dominant)el.poly.setAttribute('d','M'+pts.map(function(p){return vf(p[0])+' '+vf(p[1]);}).join('L')+'L840 600L0 600Z');
+  const hd=[],tl=[];
+  vLeaflet(pts,1,hd,tl);vLeaflet(pts,-1,hd,tl);
+  if(spec.rings){spec.rings.forEach(function(r){vRing(r[0],r[1],hd,tl);});el.ring.setAttribute('cx',vf(spec.rings[0][0]));el.ring.setAttribute('cy',vf(spec.rings[0][1]));el.ring.style.display='';}
+  else el.ring.style.display='none';
+  el.hd.setAttribute('d',hd.join(''));el.tl.setAttribute('d',tl.join(''));
+}
+function vRender(){
+  if(!vEl.A)vInitDom();
+  const sp=vSpecs(),v=S.v,e=v[v.proc];
+  const domA=sp.A&&(!sp.B||sp.A.a>=sp.B.a);
+  vDrawSet(vEl.A,sp.A,domA);vDrawSet(vEl.B,sp.B,!domA);
+  if(v.proc!=='exo'){
+    vEl.cargo.style.display='';vEl.cargo.setAttribute('transform','translate('+vf(e.x)+' '+vf(e.y)+')');
+    const pn=v.proc==='pino';vEl.eP.style.display=pn?'':'none';vEl.eS.style.display=pn?'none':'';
+    if(pn)vEl.sol.forEach(function(d,i){d.el.setAttribute('cx',vf(d.x+Math.sin(S.time*1.8+i*2.1)*2.6));d.el.setAttribute('cy',vf(d.y+Math.cos(S.time*1.5+i*1.7)*2.6));});
+    vEl.tag.style.display='';vEl.tagT.textContent=t(pn?'tagPi':'tagPh');
+    vEl.dots.forEach(function(d){d.style.display='none';});
+  }else{
+    vEl.cargo.style.display='none';vEl.tag.style.display='';vEl.tagT.textContent=t('tagEx');
+    e.dots.forEach(function(d,i){vEl.dots[i].style.display='';vEl.dots[i].setAttribute('transform','translate('+vf(d.x)+' '+vf(d.y)+')');});
+  }
+  const act=(e.ph==='invag'||e.ph==='tube'||e.ph==='pore'||e.ph==='fuse'||e.ph==='split');
+  document.getElementById('vAtp').setAttribute('opacity',(act?0.7+0.3*Math.sin(S.time*5):0.25).toFixed(2));
+}
+function vStage(){
+  const v=S.v,e=v[v.proc];
+  return v.proc!=='exo'?{approach:1,invag:1,tube:2,split:2,sink:3,done:3}[e.ph]:{travel:1,dock:2,fuse:2,tube:2,pore:3,done:3}[e.ph];
+}
+function vCapKey(){
+  const v=S.v,e=v[v.proc];
+  return v.proc!=='exo'?{approach:'enApproach',invag:'enInvag',tube:'enPinch',split:'enPinch',sink:'enSink',done:'enSink'}[e.ph]
+    :{travel:'exTravel',dock:'exDock',fuse:'exFuse',tube:'exFuse',pore:'exRelease',done:'exDone'}[e.ph];
+}
+
+/* ======================================================================
+   CHALLENGE MODE
+   ====================================================================== */
+const CH_CORRECT=['a','b','b','a','a','b'];
+const chal={pred:{},done:{}};
+function chalCheck(){return;
+  const P=(mode==='passive'?S:MODES.passive.S).c,c=(mode==='active'?S:MODES.active.S).c,done=chal.done,newly=[];
+  const f=[P.c1>=3,c.noAtpT>=3,c.atpBind>=1,c.e1e2>=1,c.cycles>=1,c.noAtpT2>=3&&c.cycles>=1];
+  f.forEach(function(v,i){if(v&&!done[i+1]){done[i+1]=true;newly.push(i+1);}});
+  if(newly.length){newly.forEach(function(n){toast(t('chToast',{n:n}));});renderChallenges();}
+}
+function renderChallenges(){
+  const p=document.getElementById('chalPanel');if(p.style.display==='none')return;
+  let h='<h2>'+t('chTitle')+'</h2><div class="note">'+t('chIntro')+'</div>';
+  for(let i=1;i<=6;i++){
+    const done=!!chal.done[i],pr=chal.pred[i];
+    h+='<details class="ch" '+(chal['open'+i]?'open':'')+' data-n="'+i+'"><summary>'+(done?'✅ ':'⬜ ')+i+'. '+(done?t('chDone'):t('chTodo'))+'</summary><div class="in">'+
+      '<div>'+t('c'+i+'t')+'</div><div style="margin-top:4px"><b>'+t('chPredict')+'</b> '+t('c'+i+'q')+'</div>'+
+      ['a','b'].map(function(o){return'<button class="btn opt'+(pr===o?' sel':'')+'" data-n="'+i+'" data-o="'+o+'" type="button">'+t('c'+i+o)+'</button>';}).join('')+
+      (pr&&!done?'<div class="note">'+t('chPredSaved')+'</div>':'')+
+      (done?'<div class="fb"><span class="ok">'+(pr?(pr===CH_CORRECT[i-1]?t('chRight'):t('chWrong')):'')+'</span> '+t('c'+i+'e')+'</div>':'')+
+      '</div></details>';
+  }
+  p.innerHTML=h;
+  p.querySelectorAll('details').forEach(function(d){d.addEventListener('toggle',function(){chal['open'+d.dataset.n]=d.open;});});
+  p.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){chal.pred[b.dataset.n]=b.dataset.o;chal['open'+b.dataset.n]=true;renderChallenges();});});
+}
+
+/* ======================================================================
+   CONTROLS + MAIN LOOP
+   ====================================================================== */
+function updatePlayBtn(){const b=document.getElementById('bPlay');b.textContent=running?'⏸':'▶';b.title=t(running?'pause':'play');b.setAttribute('aria-label',t(running?'pause':'play'));}
+function restartRun(){
+  if(mode==='ves'){vReset();monSig='';return;}
+  S.time=0;S.ev=[];S.c=freshState().c;history=[];snapAcc=0;
+  S.proteins.forEach(function(p){if(p.type==='pump'){p.st='idle';p.conf=0;p.dir=0;p.tm=0;p.rel=0;p.sg=false;p.fx=0;p.wantNa=false;p.wantK=false;}else{p.busy=null;p.glow=0;}});
+  buildParticlesFromSetpoints();
+}
+function resetAll(){
+  if(mode==='ves'){vReset();monSig='';return;}
+  setp=Object.assign({},MODECFG[mode].defaults);S=freshState();gmap.forEach(function(r){r.g.remove();});gmap.clear();
+  restartRun();cap=null;
+}
+function buildToolbox(){
+  const row=document.getElementById('toolRow');row.innerHTML='';
+  if(mode!=='ves'){
+    const type=MODECFG[mode].prot;
+    const c=document.createElement('div');c.className='tool';c.dataset.type=type;
+    c.innerHTML='<span class="grip" aria-hidden="true"></span><svg viewBox="-50 -62 100 124" aria-hidden="true"></svg><b data-i18n="'+(type==='pump'?'pump':'channel')+'"></b><small data-i18n="'+(type==='pump'?'pumpType':'chanType')+'"></small>';
+    if(type==='pump')buildPump(c.querySelector('svg'));else buildChannel(c.querySelector('svg'));
+    c.addEventListener('pointerdown',function(e){startNewDrag(e,type,c);});
+    row.appendChild(c);
+  }
+  if(mode==='active')return;
+  const c2=document.createElement('div');c2.className='tool static';
+  c2.innerHTML='<svg viewBox="0 0 100 60" style="width:100%;height:auto" aria-hidden="true"><g fill="none" stroke="#e0508a" stroke-width="1.6" stroke-linecap="round"><path d="M7.8 14 L7.8 30 M12.2 14 L12.2 30 M7.8 46 L7.8 30 M12.2 46 L12.2 30"/><path d="M21.1 14 L21.1 30 M25.5 14 L25.5 30 M21.1 46 L21.1 30 M25.5 46 L25.5 30"/><path d="M34.4 14 L34.4 30 M38.8 14 L38.8 30 M34.4 46 L34.4 30 M38.8 46 L38.8 30"/><path d="M47.7 14 L47.7 30 M52.1 14 L52.1 30 M47.7 46 L47.7 30 M52.1 46 L52.1 30"/><path d="M61.0 14 L61.0 30 M65.4 14 L65.4 30 M61.0 46 L61.0 30 M65.4 46 L65.4 30"/><path d="M74.3 14 L74.3 30 M78.7 14 L78.7 30 M74.3 46 L74.3 30 M78.7 46 L78.7 30"/><path d="M87.6 14 L87.6 30 M92.0 14 L92.0 30 M87.6 46 L87.6 30 M92.0 46 L92.0 30"/></g><g fill="#f5a623" stroke="#b36b00" stroke-width="1.2"><circle cx="10.0" cy="9" r="5.2"/><circle cx="10.0" cy="51" r="5.2"/><circle cx="23.3" cy="9" r="5.2"/><circle cx="23.3" cy="51" r="5.2"/><circle cx="36.6" cy="9" r="5.2"/><circle cx="36.6" cy="51" r="5.2"/><circle cx="49.9" cy="9" r="5.2"/><circle cx="49.9" cy="51" r="5.2"/><circle cx="63.2" cy="9" r="5.2"/><circle cx="63.2" cy="51" r="5.2"/><circle cx="76.5" cy="9" r="5.2"/><circle cx="76.5" cy="51" r="5.2"/><circle cx="89.8" cy="9" r="5.2"/><circle cx="89.8" cy="51" r="5.2"/></g></svg><b data-i18n="pl"></b><div class="lg"><span><i style="background:#f5a623"></i><span data-i18n="head"></span></span><span><i style="background:#e0508a"></i><span data-i18n="tails"></span></span></div>';
+  row.appendChild(c2);
+}
+function clearSimLayers(){
+  gmap.forEach(function(r){r.g.remove();});gmap.clear();pmap.forEach(function(e){e.remove();});pmap.clear();
+  document.getElementById('protLayer').innerHTML='';document.getElementById('partLayer').innerHTML='';
+  document.getElementById('dropGlow').setAttribute('opacity','0');
+}
+function switchMode(name){
+  if(name===mode&&MODES[name]&&MODES[name].live){document.getElementById('home').classList.remove('open');started=true;return;}
+  const M=MODES[mode];if(M){M.S=S;M.setp=setp;M.history=history;M.snapAcc=snapAcc;M.cap=cap;M.running=running;}
+  mode=name;const N=MODES[name];N.live=true;
+  S=N.S;setp=N.setp;history=N.history;snapAcc=N.snapAcc;cap=N.cap;running=N.running;
+  Object.keys(MODES).forEach(function(k){if(k!==name)MODES[k].live=false;});
+  drag=null;clearSimLayers();
+  document.getElementById('bgPA').style.display=name==='ves'?'none':'';
+  document.getElementById('bgV').style.display=name==='ves'?'':'none';
+  document.getElementById('vCargo').style.display=name==='ves'?'':'none';
+  document.body.dataset.mode=name;
+  document.getElementById('bRemoveAll').style.display=name==='ves'?'none':'';
+  document.getElementById('status').style.display=name==='ves'?'none':'';
+  lastStatus='';lastCap='';leftSig='';monSig='';
+  buildLeft();buildToolbox();buildMonitor();
+  applyLang();last=0;
+  document.getElementById('home').classList.remove('open');started=true;
+}
+function homeSvg(kind){
+  let h='<svg viewBox="0 0 300 150" aria-hidden="true"><rect width="300" height="75" fill="#d5ebfc"/><rect y="75" width="300" height="75" fill="#fff1dc"/>';
+  const lip=function(y0,y1){let o='';for(let x=7;x<300;x+=14){o+='<line x1="'+(x-2)+'" y1="'+(y0+5)+'" x2="'+(x-2)+'" y2="'+(y0+14)+'" stroke="#e0508a" stroke-width="1.6"/><line x1="'+(x+2)+'" y1="'+(y0+5)+'" x2="'+(x+2)+'" y2="'+(y0+14)+'" stroke="#e0508a" stroke-width="1.6"/><circle cx="'+x+'" cy="'+y0+'" r="5.2" fill="#f5a623" stroke="#b36b00"/>';
+    o+='<line x1="'+(x-2)+'" y1="'+(y1-5)+'" x2="'+(x-2)+'" y2="'+(y1-14)+'" stroke="#e0508a" stroke-width="1.6"/><line x1="'+(x+2)+'" y1="'+(y1-5)+'" x2="'+(x+2)+'" y2="'+(y1-14)+'" stroke="#e0508a" stroke-width="1.6"/><circle cx="'+x+'" cy="'+y1+'" r="5.2" fill="#f5a623" stroke="#b36b00"/>';}return o;};
+  const dot=function(x,y,c,st,tx){return'<circle cx="'+x+'" cy="'+y+'" r="9" fill="'+c+'" stroke="'+st+'" stroke-width="1.6"/><text x="'+x+'" y="'+(y+3)+'" text-anchor="middle" font-size="8" font-weight="800" fill="#10243d">'+tx+'</text>';};
+  const arr=function(x1,y1,x2,y2){return'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#14315a" stroke-width="3" stroke-linecap="round"/>';};
+  if(kind==='passive'){
+    h+=lip(63,87)+'<path d="M128 52 H146 V62 L148 75 L146 88 V98 H128Z M172 52 H154 V62 L152 75 L154 88 V98 H172Z" fill="#f6b73c" stroke="#8a5a00" stroke-width="2"/>';
+    h+=dot(150,24,'#f6d32d','#a88b00','Na⁺')+arr(150,36,150,68)+arr(150,84,150,118)+dot(150,128,'#f6d32d','#a88b00','Na⁺');
+    h+=dot(60,28,'#e8453c','#8f1d17','O₂')+arr(60,40,60,116)+dot(240,120,'#6b7785','#2b3138','CO₂')+arr(240,108,240,36);
+  }else if(kind==='active'){
+    h+=lip(63,87)+'<rect x="127" y="49" width="46" height="52" rx="12" fill="#1fa39a" stroke="#0b4f4b" stroke-width="2.4"/><path d="M137 98 L163 98 L156 66 L144 66Z" fill="#fff1dc"/>';
+    h+=dot(100,122,'#f6d32d','#a88b00','Na⁺')+arr(112,114,142,92)+dot(218,28,'#f6d32d','#a88b00','Na⁺')+dot(196,28,'#4db3f7','#0f5c99','K⁺')+arr(196,40,168,64)+'<ellipse cx="226" cy="122" rx="22" ry="12" fill="#a8e6b0" stroke="#16622a" stroke-width="2"/><text x="226" y="126" text-anchor="middle" font-size="12" font-weight="800" fill="#14532d">ATP</text>';
+  }else{
+    h+='<path d="M0 62 H92 Q112 62 112 80 Q112 108 150 108 Q188 108 188 80 Q188 62 208 62 H300" fill="none" stroke="#f5a623" stroke-width="16" stroke-linecap="round"/><path d="M0 62 H92 Q112 62 112 80 Q112 108 150 108 Q188 108 188 80 Q188 62 208 62 H300" fill="none" stroke="#e0508a" stroke-width="3" stroke-linecap="round"/>';
+    h+='<circle cx="150" cy="82" r="20" fill="#8a5fd1" stroke="#4a2c8c" stroke-width="2.5"/><circle cx="240" cy="128" r="22" fill="none" stroke="#f5a623" stroke-width="9"/><circle cx="240" cy="128" r="22" fill="none" stroke="#e0508a" stroke-width="2"/><circle cx="234" cy="124" r="5" fill="#8a5fd1"/><circle cx="246" cy="132" r="5" fill="#8a5fd1"/>'+arr(150,14,150,50);
+  }
+  return h+'</svg>';
+}
+function buildHome(){
+  document.getElementById('homeTitle').textContent=t('homeTitle');
+  const cards=[['passive','mPassive','p'],['active','mActive','a'],['ves','mVes','v']];
+  document.getElementById('homeCards').innerHTML=cards.map(function(c){
+    return'<button class="hcard" type="button" data-m="'+c[0]+'">'+homeSvg(c[0])+'<h3>'+t(c[1])+'</h3><ul><li>'+t(c[2]+'1')+'</li><li>'+t(c[2]+'2')+'</li><li>'+t(c[2]+'3')+'</li></ul></button>';
+  }).join('');
+  document.querySelectorAll('#homeCards .hcard').forEach(function(b){b.addEventListener('click',function(){switchMode(b.dataset.m);});});
+  document.getElementById('homeBack').style.display=MODES.passive&&MODES.passive.live!==undefined&&started?'':'none';
+}
+let started=false;
+function openHome(){buildHome();document.getElementById('home').classList.add('open');}
+function wireUI(){
+  document.getElementById('bPlay').addEventListener('click',function(){running=!running;updatePlayBtn();});
+  document.getElementById('bRestart').addEventListener('click',restartRun);
+  document.getElementById('bReset').addEventListener('click',resetAll);
+  document.getElementById('bRemoveAll').addEventListener('click',function(){S.proteins.slice().forEach(removeProtein);});
+  document.querySelectorAll('.modes .btn').forEach(function(b){b.addEventListener('click',function(){switchMode(b.dataset.m);});});
+  (document.getElementById('bHome')||{addEventListener:function(){}}).addEventListener('click',function(){openHome();});
+  document.getElementById('homeBack').addEventListener('click',function(){document.getElementById('home').classList.remove('open');});
+  document.getElementById('tabVT').addEventListener('click',function(){infoTab='vt';renderInfo();});
+  document.getElementById('bSet').addEventListener('click',function(){fillEditor();document.getElementById('mSet').classList.add('open');});
+  document.getElementById('setClose').addEventListener('click',function(){document.getElementById('mSet').classList.remove('open');});
+  (document.getElementById('bInfo')||{addEventListener:function(){}}).addEventListener('click',function(){renderInfo();document.getElementById('mInfo').classList.add('open');});
+  document.getElementById('infoClose').addEventListener('click',function(){document.getElementById('mInfo').classList.remove('open');});
+  ['mSet','mInfo'].forEach(function(id){document.getElementById(id).addEventListener('pointerdown',function(e){if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});});
+  (document.getElementById('bChal')||{addEventListener:function(){}}).addEventListener('click',function(e){const p=document.getElementById('chalPanel');p.style.display=p.style.display==='none'?'':'none';e.currentTarget.classList.toggle('on',p.style.display!=='none');renderChallenges();});
+  document.getElementById('tabFD').addEventListener('click',function(){infoTab='fd';renderInfo();});
+  document.getElementById('tabAT').addEventListener('click',function(){infoTab='at';renderInfo();});
+  document.getElementById('objBtn').addEventListener('click',function(){const b=document.getElementById('objBox');const open=b.style.display==='none';b.style.display=open?'':'none';document.getElementById('objBtn').textContent=t(open?'hideObj':'showObj');});
+  document.getElementById('qEn').addEventListener('click',function(){setLang('en');});
+  document.getElementById('qVi').addEventListener('click',function(){setLang('vi');});
+  document.querySelectorAll('#langRadios .btn').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.l);});});
+  document.getElementById('setRestore').addEventListener('click',function(){custom=null;if(lang==='custom')lang='vi';saveSettings();applyLang();fillEditor();document.getElementById('setMsg').textContent=t('setRestored');});
+  document.getElementById('setExport').addEventListener('click',exportSettings);
+  document.getElementById('setImport').addEventListener('click',function(){importSettings(document.getElementById('setJson').value);});
+  document.getElementById('setFile').addEventListener('change',function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(){document.getElementById('setJson').value=r.result;importSettings(r.result);};r.readAsText(f);e.target.value='';});
+  document.addEventListener('visibilitychange',function(){last=0;});
+}
+let last=0,chalT=0;
+function frame(ts){
+  requestAnimationFrame(frame);
+  if(!last)last=ts;let dt=(ts-last)/1000;last=ts;if(dt>0.1)dt=0.05;
+  if(running&&!document.hidden){stepSim(dt*speed);chalT+=dt;if(chalT>0.25){chalT=0;chalCheck();}}
+  render();
+}
+
+/* ---- init ---- */
+loadSettings();
+['passive','active','ves'].forEach(function(n){MODES[n]={S:n==='passive'?S:freshState(n),setp:n==='passive'?setp:Object.assign({},MODECFG[n].defaults),history:[],snapAcc:0,cap:null,running:true,live:false};});
+buildParticlesFromSetpoints();MODES.passive.live=true;
+// give the other particle modes their own starting particles
+(function(){const keep={S:S,setp:setp,mode:mode};['active'].forEach(function(n){mode=n;S=MODES[n].S;setp=MODES[n].setp;buildParticlesFromSetpoints();});mode=keep.mode;S=keep.S;setp=keep.setp;})();
+buildLeft();buildToolbox();buildMonitor();
+wireUI();applyLang();fillEditor();
+started=true;
+requestAnimationFrame(frame);
+
+/* test / debugging hooks (not used by the UI) */
+window.__sim={get S(){return S;},get mode(){return mode;},switchMode:switchMode,MODES:MODES,get running_(){return running;},counts:counts,advance:function(sec){const wasR=running;stepSim(sec);render();},
+  addProtein:addProtein,removeProtein:removeProtein,adjust:adjustTo,setLang:setLang,t:t,I18N:I18N,get lang(){return lang;},get running(){return running;},
+  setRunning:function(v){running=v;updatePlayBtn();},chalCheck:chalCheck,get chal(){return chal;},restartRun:restartRun,resetAll:resetAll,get history(){return history;}};
+})();
+</script>
+</body>
+</html>
